@@ -1,11 +1,17 @@
 import React, { createContext, useState, useEffect } from 'react';
-import { login as serviceLogin, logout as serviceLogout, register as serviceRegister, getCurrentUser } from '../services/authService';
+import { 
+  loginUser, 
+  logout as serviceLogout, 
+  registerUser, 
+  getCurrentUser,
+  saveAuth
+} from '../services/authService';
 
 interface AuthContextType {
   user: any;
   loading: boolean;
   login: (email: string, password: string) => Promise<any>;
-  logout: () => Promise<void>;
+  logout: () => void;
   register: (name: string, email: string, password: string) => Promise<any>;
 }
 
@@ -21,22 +27,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setLoading(false);
   }, []);
 
-  const login = (email: string, password: string) =>
-    serviceLogin({ email, password }).then((res) => {
-      setUser(res.data.user);
-      return res;
-    });
+  const login = async (email: string, password: string) => {
+    const res = await loginUser({ email, password });
+    saveAuth(res);
+    setUser(res.user);
+    return res;
+  };
 
-  const logout = () =>
-    serviceLogout().then(() => {
-      setUser(null);
-    });
+  const logout = () => {
+    serviceLogout();
+    setUser(null);
+  };
 
-  const register = (name: string, email: string, password: string) =>
-    serviceRegister({ name, email, password }).then((res) => {
-      setUser(res.data.user);
-      return res;
-    });
+  const register = async (name: string, email: string, password: string) => {
+    const res = await registerUser({ name, email, password });
+    saveAuth(res);
+    setUser(res.user);
+    return res;
+  };
 
   return (
     <AuthContext.Provider value={{ user, loading, login, logout, register }}>
