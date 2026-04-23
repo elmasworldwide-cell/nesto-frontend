@@ -3,6 +3,32 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useApp } from "../context/AppContext";
 import { isLoggedIn, getCurrentUser, logout } from "../services/authService";
 
+// LOKESTA Logo SVG Component
+function LokestLogo({ size = 36 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="100" height="100" rx="18" fill="#0f1923"/>
+      {/* Location pin */}
+      <path d="M50 12 C33 12 20 25 20 42 C20 62 50 88 50 88 C50 88 80 62 80 42 C80 25 67 12 50 12Z" fill="#2563eb"/>
+      <path d="M50 12 C33 12 20 25 20 42 C20 62 50 88 50 88 C50 88 80 62 80 42 C80 25 67 12 50 12Z" fill="url(#logoGrad)" opacity="0.7"/>
+      {/* House inside pin */}
+      <path d="M34 40 L50 28 L66 40 L66 56 L57 56 L57 47 L43 47 L43 56 L34 56 Z" fill="white"/>
+      {/* Door */}
+      <rect x="44" y="47" width="12" height="9" rx="1" fill="#1e40af" opacity="0.6"/>
+      {/* Window */}
+      <rect x="46" y="34" width="8" height="6" rx="1" fill="#1e40af" opacity="0.4"/>
+      {/* Inner circle */}
+      <circle cx="50" cy="44" r="4" fill="white" opacity="0.2"/>
+      <defs>
+        <linearGradient id="logoGrad" x1="20" y1="12" x2="80" y2="88" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stopColor="#60a5fa"/>
+          <stop offset="100%" stopColor="#1e3a8a"/>
+        </linearGradient>
+      </defs>
+    </svg>
+  );
+}
+
 export default function Navbar() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -29,12 +55,15 @@ export default function Navbar() {
         <div style={s.inner}>
           {/* Logo */}
           <Link to="/" style={s.logo}>
-            <span style={{ fontSize: "1.4rem" }}>🏠</span>
-            <span style={s.logoText}>NESTO</span>
+            <LokestLogo size={38} />
+            <div style={s.logoTextWrap}>
+              <span style={s.logoText}>LOKESTA</span>
+              <span style={s.logoTagline}>Find your place anywhere</span>
+            </div>
           </Link>
 
           {/* Desktop Links */}
-          <div style={s.links} className="nav-links">
+          <div style={s.links}>
             {[
               { to: "/", label: t("nav.home") },
               { to: "/rooms", label: t("nav.rooms") },
@@ -56,8 +85,8 @@ export default function Navbar() {
             ))}
           </div>
 
-          {/* Right — Auth buttons */}
-          <div style={s.authButtons} className="nav-auth">
+          {/* Right — Auth */}
+          <div style={s.authButtons}>
             {loggedIn ? (
               <>
                 <div style={s.userChip}>
@@ -81,7 +110,6 @@ export default function Navbar() {
           {/* Hamburger */}
           <button
             style={s.hamburger}
-            className="nav-hamburger"
             onClick={() => setMenuOpen(!menuOpen)}
             aria-label="Toggle menu"
           >
@@ -171,15 +199,28 @@ const s: Record<string, React.CSSProperties> = {
   logo: {
     display: "flex",
     alignItems: "center",
-    gap: "0.5rem",
+    gap: "0.75rem",
     marginRight: "auto",
+    textDecoration: "none",
+  },
+  logoTextWrap: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "1px",
   },
   logoText: {
     fontFamily: "'Playfair Display', serif",
-    fontSize: "1.6rem",
+    fontSize: "1.5rem",
     fontWeight: 700,
     color: "#c9a84c",
     letterSpacing: "0.12em",
+    lineHeight: 1,
+  },
+  logoTagline: {
+    color: "rgba(255,255,255,0.35)",
+    fontSize: "0.6rem",
+    letterSpacing: "0.08em",
+    textTransform: "uppercase",
   },
   links: {
     display: "flex",

@@ -65,7 +65,7 @@ export default function AddProperty() {
         });
       } else {
         // Save to localStorage if not logged in
-        const existing = JSON.parse(localStorage.getItem("nesto_rooms") || "[]");
+        const existing = JSON.parse(localStorage.getItem("lokesta_rooms") || "[]");
         existing.push({
           ...form,
           id: Date.now(),
@@ -75,7 +75,7 @@ export default function AddProperty() {
           ownerId: 0,
           createdAt: new Date().toISOString(),
         });
-        localStorage.setItem("nesto_rooms", JSON.stringify(existing));
+        localStorage.setItem("lokesta_rooms", JSON.stringify(existing));
       }
 
       setSubmitted(true);
@@ -97,7 +97,7 @@ export default function AddProperty() {
         <div style={s.successCard}>
           <div style={{ fontSize: "3.5rem" }}>🎉</div>
           <h2 style={s.successTitle}>Chumba Kimewekwa!</h2>
-          <p style={s.successText}>"{form.title}" imewekwa kwenye NESTO.</p>
+          <p style={s.successText}>"{form.title}" imewekwa kwenye LOKESTA.</p>
           <div style={s.loaderWrap}><div style={s.loaderBar} /></div>
           <p style={{ color: "#9ca3af", fontSize: "0.8rem" }}>Unahamishwa...</p>
         </div>

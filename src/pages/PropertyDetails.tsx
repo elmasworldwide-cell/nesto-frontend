@@ -13,7 +13,7 @@ export default function PropertyDetails() {
   const [showVideoInput, setShowVideoInput] = useState(false);
   const [savedVideo, setSavedVideo] = useState<string | null>(null);
 
-  const savedRooms = JSON.parse(localStorage.getItem("nesto_rooms") || "[]");
+  const savedRooms = JSON.parse(localStorage.getItem("lokesta_rooms") || "[]");
   const allRooms = [...rooms, ...savedRooms];
   const room = allRooms.find((r) => r.id === Number(id));
 
@@ -41,10 +41,10 @@ export default function PropertyDetails() {
     : "07****56";
 
   const handleSave = () => {
-    const bookmarks = JSON.parse(localStorage.getItem("nesto_saved") || "[]");
+    const bookmarks = JSON.parse(localStorage.getItem("lokesta_saved") || "[]");
     if (!bookmarks.find((b: typeof room) => b.id === room.id)) {
       bookmarks.push(room);
-      localStorage.setItem("nesto_saved", JSON.stringify(bookmarks));
+      localStorage.setItem("lokesta_saved", JSON.stringify(bookmarks));
     }
     setSaved(true);
   };

@@ -45,8 +45,8 @@ export default function Register() {
       {/* Left panel */}
       <div style={s.leftPanel}>
         <div style={s.leftContent}>
-          <Link to="/" style={s.brand}>🏠 NESTO</Link>
-          <h2 style={s.leftTitle}>Join 2,400+ Tanzanians on NESTO</h2>
+          <Link to="/" style={s.brand}>🏠 LOKESTA</Link>
+          <h2 style={s.leftTitle}>Join 2,400+ Tanzanians on LOKESTA</h2>
           <div style={s.benefitsList}>
             {[
               { icon: "🔍", text: "Browse hundreds of verified rooms" },
@@ -67,7 +67,7 @@ export default function Register() {
       <div style={s.rightPanel}>
         <div style={s.formWrap}>
           <h1 style={s.title}>Create account</h1>
-          <p style={s.subtitle}>Join NESTO and find your perfect space</p>
+          <p style={s.subtitle}>Join LOKESTA and find your perfect space</p>
 
           {error && <div style={s.errorBox}>⚠️ {error}</div>}
 

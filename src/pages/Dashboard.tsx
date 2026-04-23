@@ -25,20 +25,20 @@ export default function Dashboard() {
   const [myListings, setMyListings] = useState<Room[]>([]);
 
   useEffect(() => {
-    setSavedRooms(JSON.parse(localStorage.getItem("nesto_saved") || "[]"));
-    setMyListings(JSON.parse(localStorage.getItem("nesto_rooms") || "[]"));
+    setSavedRooms(JSON.parse(localStorage.getItem("lokesta_saved") || "[]"));
+    setMyListings(JSON.parse(localStorage.getItem("lokesta_rooms") || "[]"));
   }, []);
 
   const removeFromSaved = (id: number) => {
     const updated = savedRooms.filter((r) => r.id !== id);
     setSavedRooms(updated);
-    localStorage.setItem("nesto_saved", JSON.stringify(updated));
+    localStorage.setItem("lokesta_saved", JSON.stringify(updated));
   };
 
   const removeMyListing = (id: number) => {
     const updated = myListings.filter((r) => r.id !== id);
     setMyListings(updated);
-    localStorage.setItem("nesto_rooms", JSON.stringify(updated));
+    localStorage.setItem("lokesta_rooms", JSON.stringify(updated));
   };
 
   const handleLogout = () => {
@@ -290,7 +290,7 @@ export default function Dashboard() {
               <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
                 {[
                   { label: "Full Name", value: user?.name || "Samwel", type: "text" },
-                  { label: "Email", value: user?.email || "samwel@nesto.co.tz", type: "email" },
+                  { label: "Email", value: user?.email || "samwel@lokesta.co.tz", type: "email" },
                   { label: "Phone", value: "0754123456", type: "tel" },
                   { label: "City", value: "Arusha", type: "text" },
                 ].map((field) => (
@@ -320,7 +320,7 @@ export default function Dashboard() {
                 onClick={handleLogout}
                 style={{ width: "100%", background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.3)", color: "#ef4444", padding: "0.875rem", borderRadius: "10px", fontWeight: 700, fontSize: "0.9rem", cursor: "pointer", fontFamily: "'DM Sans', sans-serif" }}
               >
-                🚪 Logout from NESTO
+                🚪 Logout from LOKESTA
               </button>
             </div>
           </div>

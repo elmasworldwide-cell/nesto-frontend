@@ -39,24 +39,24 @@ export const getProfile = async (): Promise<User> => {
 
 // Save auth data to localStorage
 export const saveAuth = (data: AuthResponse) => {
-  localStorage.setItem("nesto_token", data.token);
-  localStorage.setItem("nesto_user", JSON.stringify(data.user));
+  localStorage.setItem("lokesta_token", data.token);
+  localStorage.setItem("lokesta_user", JSON.stringify(data.user));
 };
 
 // Logout
 export const logout = () => {
-  localStorage.removeItem("nesto_token");
-  localStorage.removeItem("nesto_user");
+  localStorage.removeItem("lokesta_token");
+  localStorage.removeItem("lokesta_user");
   window.location.href = "/login";
 };
 
 // Get current user
 export const getCurrentUser = (): User | null => {
-  const user = localStorage.getItem("nesto_user");
+  const user = localStorage.getItem("lokesta_user");
   return user ? JSON.parse(user) : null;
 };
 
 // Check if logged in
 export const isLoggedIn = (): boolean => {
-  return !!localStorage.getItem("nesto_token");
+  return !!localStorage.getItem("lokesta_token");
 };

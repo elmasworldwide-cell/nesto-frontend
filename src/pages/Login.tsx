@@ -71,11 +71,11 @@ export default function Login() {
       {/* Left panel */}
       <div style={s.leftPanel}>
         <div style={s.leftContent}>
-          <Link to="/" style={s.brand}>🏠 NESTO</Link>
+          <Link to="/" style={s.brand}>🏠 LOKESTA</Link>
           <h2 style={s.leftTitle}>Tanzania's Smartest Room Rental Platform</h2>
           <p style={s.leftText}>Join thousands finding their perfect room across Tanzania.</p>
           <div style={s.testimonial}>
-            <p style={s.testimonialText}>"Nilipata chumba Arusha kwa siku mbili tu kupitia NESTO. Rahisi sana!"</p>
+            <p style={s.testimonialText}>"Nilipata chumba Arusha kwa siku mbili tu kupitia LOKESTA. Rahisi sana!"</p>
             <p style={s.testimonialAuthor}>— Amina J., Arusha</p>
           </div>
         </div>
@@ -161,7 +161,7 @@ export default function Login() {
           </p>
 
           <button
-            onClick={() => setForm({ email: "samwel@nesto.co.tz", password: "password123" })}
+            onClick={() => setForm({ email: "samwel@lokesta.co.tz", password: "password123" })}
             style={{ ...s.demoBtn, background: dark ? "rgba(255,255,255,0.06)" : "transparent", borderColor: inputBorder, color: dark ? "rgba(255,255,255,0.6)" : "#374151" }}
           >
             {t("login.demo")}

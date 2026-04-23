@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "https://nesto-backend-production-623a.up.railway.app/api",
+  baseURL: "https://lokesta-backend-production-623a.up.railway.app/api",
   headers: {
     "Content-Type": "application/json",
   },
@@ -9,7 +9,7 @@ const api = axios.create({
 
 // Attach JWT token to every request automatically
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("nesto_token");
+  const token = localStorage.getItem("lokesta_token");
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -21,8 +21,8 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      localStorage.removeItem("nesto_token");
-      localStorage.removeItem("nesto_user");
+      localStorage.removeItem("lokesta_token");
+      localStorage.removeItem("lokesta_user");
       window.location.href = "/login";
     }
     return Promise.reject(error);

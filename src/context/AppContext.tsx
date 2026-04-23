@@ -38,11 +38,11 @@ const translations = {
     "home.features.sub": "Simple, fast and trusted room rentals across Tanzania",
     "home.cities.title": "Browse by City",
     "home.cities.sub": "Rooms in 12+ cities across Tanzania",
-    "home.how.title": "How NESTO Works",
+    "home.how.title": "How LOKESTA Works",
     "home.cta.title": "Have a Room to Rent?",
     "home.cta.sub": "List your property for free and reach thousands of tenants instantly.",
     "home.cta.btn": "🏠 Post Property — Free",
-    "home.footer.copy": "© 2026 NESTO. Built with ❤️ in Tanzania 🇹🇿",
+    "home.footer.copy": "© 2026 LOKESTA. Built with ❤️ in Tanzania 🇹🇿",
     // Rooms
     "rooms.title": "Find Your Room",
     "rooms.searchPlaceholder": "Search by title or location...",
@@ -57,7 +57,7 @@ const translations = {
     "rooms.loading": "Loading rooms...",
     // Login
     "login.title": "Welcome back",
-    "login.subtitle": "Sign in to your NESTO account",
+    "login.subtitle": "Sign in to your LOKESTA account",
     "login.email": "Email Address",
     "login.password": "Password",
     "login.btn": "Login →",
@@ -68,7 +68,7 @@ const translations = {
     "login.orGoogle": "or continue with",
     // Register
     "register.title": "Create account",
-    "register.subtitle": "Join NESTO and find your perfect space",
+    "register.subtitle": "Join LOKESTA and find your perfect space",
     "register.name": "Full Name",
     "register.email": "Email Address",
     "register.password": "Password",
@@ -128,11 +128,11 @@ const translations = {
     "home.features.sub": "Upangaji wa vyumba rahisi, wa haraka na wa kuaminiwa kote Tanzania",
     "home.cities.title": "Tafuta kwa Mji",
     "home.cities.sub": "Vyumba katika miji 12+ kote Tanzania",
-    "home.how.title": "NESTO Inafanyaje Kazi",
+    "home.how.title": "LOKESTA Inafanyaje Kazi",
     "home.cta.title": "Una Chumba cha Kupanga?",
     "home.cta.sub": "Orodhesha mali yako bila malipo na ufikie maelfu ya wapangaji mara moja.",
     "home.cta.btn": "🏠 Weka Mali — Bure",
-    "home.footer.copy": "© 2026 NESTO. Imetengenezwa kwa ❤️ Tanzania 🇹🇿",
+    "home.footer.copy": "© 2026 LOKESTA. Imetengenezwa kwa ❤️ Tanzania 🇹🇿",
     // Rooms
     "rooms.title": "Tafuta Chumba Chako",
     "rooms.searchPlaceholder": "Tafuta kwa jina au eneo...",
@@ -147,7 +147,7 @@ const translations = {
     "rooms.loading": "Inapakia vyumba...",
     // Login
     "login.title": "Karibu tena",
-    "login.subtitle": "Ingia kwenye akaunti yako ya NESTO",
+    "login.subtitle": "Ingia kwenye akaunti yako ya LOKESTA",
     "login.email": "Anwani ya Barua Pepe",
     "login.password": "Nenosiri",
     "login.btn": "Ingia →",
@@ -158,7 +158,7 @@ const translations = {
     "login.orGoogle": "au endelea na",
     // Register
     "register.title": "Fungua akaunti",
-    "register.subtitle": "Jiunge na NESTO na upate nafasi yako",
+    "register.subtitle": "Jiunge na LOKESTA na upate nafasi yako",
     "register.name": "Jina Kamili",
     "register.email": "Anwani ya Barua Pepe",
     "register.password": "Nenosiri",
@@ -198,15 +198,15 @@ const AppContext = createContext<AppContextType | null>(null);
 
 export function AppProvider({ children }: { children: ReactNode }) {
   const [theme, setTheme] = useState<Theme>(() => {
-    return (localStorage.getItem("nesto_theme") as Theme) || "light";
+    return (localStorage.getItem("lokesta_theme") as Theme) || "light";
   });
 
   const [language, setLanguage] = useState<Language>(() => {
-    return (localStorage.getItem("nesto_language") as Language) || "en";
+    return (localStorage.getItem("lokesta_language") as Language) || "en";
   });
 
   useEffect(() => {
-    localStorage.setItem("nesto_theme", theme);
+    localStorage.setItem("lokesta_theme", theme);
     document.documentElement.setAttribute("data-theme", theme);
     if (theme === "dark") {
       document.documentElement.style.setProperty("--bg-primary", "#0f1923");
@@ -228,7 +228,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, [theme]);
 
   useEffect(() => {
-    localStorage.setItem("nesto_language", language);
+    localStorage.setItem("lokesta_language", language);
   }, [language]);
 
   const toggleTheme = () => setTheme((prev) => (prev === "light" ? "dark" : "light"));

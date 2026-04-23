@@ -378,7 +378,7 @@ export default function Payment() {
         {/* Security notice */}
         <div style={{ textAlign: "center", marginTop: "1rem" }}>
           <p style={{ color: textSecondary, fontSize: "0.75rem" }}>
-            🔒 Malipo yako yanalindwa na encryption ya hali ya juu. NESTO haihifadhi taarifa zako za malipo.
+            🔒 Malipo yako yanalindwa na encryption ya hali ya juu. LOKESTA haihifadhi taarifa zako za malipo.
           </p>
         </div>
       </div>

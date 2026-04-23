@@ -219,7 +219,7 @@ export default function Home() {
       <section style={s.section}>
         <div style={s.container}>
           <div style={s.head}>
-            <span style={s.tag}>Why NESTO?</span>
+            <span style={s.tag}>Why LOKESTA?</span>
             <h2 style={s.sTitle}>Everything You Need</h2>
             <p style={s.sSub}>Simple, fast and trusted room rentals across Tanzania</p>
           </div>
@@ -285,7 +285,7 @@ export default function Home() {
         <div style={s.container}>
           <div style={s.head}>
             <span style={s.tag}>Simple Process</span>
-            <h2 style={s.sTitle}>How NESTO Works</h2>
+            <h2 style={s.sTitle}>How LOKESTA Works</h2>
           </div>
           <div style={s.stepsGrid}>
             {[
@@ -326,7 +326,7 @@ export default function Home() {
         <div style={s.container}>
           <div style={s.footerRow}>
             <div>
-              <div style={s.footerLogo}>🏠 NESTO</div>
+              <div style={s.footerLogo}>🏠 LOKESTA</div>
               <p style={s.footerSub}>Tanzania's trusted room rental platform</p>
             </div>
             <div style={s.footerLinks}>
@@ -340,7 +340,7 @@ export default function Home() {
               ))}
             </div>
           </div>
-          <div style={s.footerCopy}>© 2026 NESTO. Built with ❤️ in Tanzania 🇹🇿</div>
+          <div style={s.footerCopy}>© 2026 LOKESTA. Built with ❤️ in Tanzania 🇹🇿</div>
         </div>
       </footer>
     </div>
