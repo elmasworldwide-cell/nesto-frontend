@@ -8,7 +8,6 @@
   --text-secondary: #6b7280;
   --border: rgba(0,0,0,0.08);
   --input-bg: #fdfaf7;
-  --gold: #c9a84c;
   --orange: #f97316;
   --navy: #0f1923;
   --navbar-height: 68px;
@@ -34,6 +33,7 @@ body {
   min-height: 100vh;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   transition: background 0.3s ease, color 0.3s ease;
 }
 
@@ -45,7 +45,7 @@ img { display: block; max-width: 100%; }
 
 /* ── Animations ── */
 @keyframes fadeUp {
-  from { opacity: 0; transform: translateY(24px); }
+  from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }
 }
 @keyframes shimmer {
@@ -53,28 +53,26 @@ img { display: block; max-width: 100%; }
   100% { background-position: 200% 0; }
 }
 @keyframes spin { to { transform: rotate(360deg); } }
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
 /* ── Scrollbar ── */
 ::-webkit-scrollbar { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: rgba(249,115,22,0.3); border-radius: 3px; }
-
-/* ── Focus ── */
-input:focus, textarea:focus, select:focus {
-  border-color: #f97316 !important;
-  box-shadow: 0 0 0 3px rgba(249,115,22,0.15) !important;
-}
+::-webkit-scrollbar-thumb:hover { background: rgba(249,115,22,0.6); }
 
 /* ── Selection ── */
 ::selection { background: rgba(249,115,22,0.2); }
 
-/* ════════════════════════════════════
-   RESPONSIVE — TABLET (max 1024px)
-════════════════════════════════════ */
+/* ── Focus ── */
+input:focus, textarea:focus, select:focus {
+  border-color: #f97316 !important;
+  box-shadow: 0 0 0 3px rgba(249,115,22,0.12) !important;
+}
+
+/* ══════════════════════════════
+   TABLET (max 1024px)
+══════════════════════════════ */
 @media (max-width: 1024px) {
   .nav-links { display: none !important; }
   .nav-auth { display: none !important; }
@@ -88,6 +86,7 @@ input:focus, textarea:focus, select:focus {
   .rooms-grid { grid-template-columns: repeat(2, 1fr) !important; }
   .dashboard-stats { grid-template-columns: repeat(2, 1fr) !important; }
   .dashboard-overview { grid-template-columns: 1fr !important; }
+
   .login-left-panel { display: none !important; }
   .login-right-panel {
     width: 100% !important;
@@ -97,6 +96,8 @@ input:focus, textarea:focus, select:focus {
     align-items: center !important;
     justify-content: center !important;
   }
+  .mobile-logo { display: flex !important; }
+
   .hero-float-card { display: none !important; }
   .steps-grid { grid-template-columns: repeat(2, 1fr) !important; }
   .cta-inner { flex-direction: column !important; text-align: center !important; align-items: center !important; }
@@ -106,9 +107,9 @@ input:focus, textarea:focus, select:focus {
   .title-row { flex-direction: column !important; align-items: flex-start !important; }
 }
 
-/* ════════════════════════════════════
-   RESPONSIVE — MOBILE (max 768px)
-════════════════════════════════════ */
+/* ══════════════════════════════
+   MOBILE (max 768px)
+══════════════════════════════ */
 @media (max-width: 768px) {
   :root { --navbar-height: 64px; }
 
@@ -116,27 +117,32 @@ input:focus, textarea:focus, select:focus {
   .rooms-grid { grid-template-columns: 1fr !important; }
   .steps-grid { grid-template-columns: 1fr 1fr !important; }
   .feat-grid { grid-template-columns: 1fr 1fr !important; }
-  .hero-title { font-size: 2.2rem !important; }
+  .hero-title { font-size: 2.1rem !important; }
   .dashboard-stats { grid-template-columns: repeat(2, 1fr) !important; }
-  .form-row { flex-direction: column !important; }
   .payment-networks { grid-template-columns: repeat(2, 1fr) !important; }
   .payment-amount-card { flex-direction: column !important; gap: 0.75rem !important; }
-  .thumb-row { gap: 0.5rem !important; }
-  .thumb-row > div { width: 70px !important; height: 52px !important; }
+  .thumb-row > div { width: 68px !important; height: 50px !important; }
+
+  /* Add property — full width on mobile */
+  .add-property-grid { grid-template-columns: 1fr !important; padding: 0 !important; }
+  .tips-sidebar { display: none !important; }
 }
 
-/* ════════════════════════════════════
-   RESPONSIVE — SMALL (max 480px)
-════════════════════════════════════ */
+/* ══════════════════════════════
+   SMALL MOBILE (max 480px)
+══════════════════════════════ */
 @media (max-width: 480px) {
   :root { --navbar-height: 60px; }
+
   .steps-grid { grid-template-columns: 1fr !important; }
   .feat-grid { grid-template-columns: 1fr !important; }
-  .hero-title { font-size: 1.8rem !important; line-height: 1.15 !important; }
+  .hero-title { font-size: 1.85rem !important; line-height: 1.15 !important; }
   .section-title { font-size: 1.5rem !important; }
   .cities-grid { grid-template-columns: repeat(2, 1fr) !important; }
   .payment-networks { grid-template-columns: repeat(3, 1fr) !important; }
   .logo-tagline { display: none !important; }
-  .logo-text { font-size: 1.3rem !important; }
   .dashboard-stats { grid-template-columns: 1fr 1fr !important; }
+
+  /* Login/Register on small screens */
+  .login-right-panel { padding: 2rem 1.25rem !important; }
 }

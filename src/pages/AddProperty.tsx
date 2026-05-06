@@ -1,262 +1,256 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { createRoom } from "../services/roomsService";
+import { useDropzone } from "react-dropzone";
+import { useApp } from "../context/AppContext";
 import { isLoggedIn } from "../services/authService";
+import api from "../services/api";
+
+const CLOUDINARY_UPLOAD_PRESET = "nesto_upload";
+const CLOUDINARY_CLOUD_NAME = "dbhkwhthz";
 
 export default function AddProperty() {
   const navigate = useNavigate();
+  const { theme } = useApp();
+  const dark = theme === "dark";
+
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [form, setForm] = useState({
-    title: "",
-    price: "",
-    city: "",
-    location: "",
-    description: "",
-    phone: "",
-    image: "",
-  });
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [uploadingImg, setUploadingImg] = useState(false);
+  const [uploadedImages, setUploadedImages] = useState<string[]>([]);
+  const [previews, setPreviews] = useState<string[]>([]);
   const [apiError, setApiError] = useState("");
+  const [form, setForm] = useState({ title: "", price: "", city: "", location: "", description: "", phone: "" });
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const cities = ["Arusha", "Dar es Salaam", "Moshi", "Zanzibar", "Dodoma", "Mwanza", "Tanga", "Other"];
 
+  const bg = dark ? "#0f1923" : "#f8f4ed";
+  const cardBg = dark ? "#1a2a3a" : "#ffffff";
+  const textPrimary = dark ? "#f8f4ed" : "#0f1923";
+  const textSecondary = dark ? "rgba(255,255,255,0.5)" : "#6b7280";
+  const borderColor = dark ? "rgba(255,255,255,0.12)" : "#e5e0d8";
+  const inputBg = dark ? "#0f1923" : "#fdfaf7";
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
-    if (errors[name]) setErrors((prev) => ({ ...prev, [name]: "" }));
+    setForm((p) => ({ ...p, [name]: value }));
+    if (errors[name]) setErrors((p) => ({ ...p, [name]: "" }));
     setApiError("");
   };
 
-  const validate = () => {
-    const newErrors: Record<string, string> = {};
-    if (!form.title.trim()) newErrors.title = "Title inahitajika";
-    if (!form.price.trim()) newErrors.price = "Price inahitajika";
-    if (!form.city) newErrors.city = "Chagua mji";
-    if (!form.location.trim()) newErrors.location = "Location inahitajika";
-    if (!form.phone.trim()) newErrors.phone = "Phone inahitajika";
-    if (form.phone && !/^0[67]\d{8}$/.test(form.phone)) {
-      newErrors.phone = "Namba si sahihi (mfano: 0754123456)";
+  const uploadToCloudinary = async (file: File): Promise<string> => {
+    const fd = new FormData();
+    fd.append("file", file);
+    fd.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+    const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, { method: "POST", body: fd });
+    const data = await res.json();
+    return data.secure_url;
+  };
+
+  const onDrop = useCallback(async (acceptedFiles: File[]) => {
+    if (!acceptedFiles.length) return;
+    setUploadingImg(true);
+    const newPreviews: string[] = [];
+    const newUrls: string[] = [];
+    for (const file of acceptedFiles.slice(0, 5)) {
+      const previewUrl = URL.createObjectURL(file);
+      newPreviews.push(previewUrl);
+      try { newUrls.push(await uploadToCloudinary(file)); }
+      catch { newUrls.push(previewUrl); }
     }
-    return newErrors;
+    setPreviews((p) => [...p, ...newPreviews]);
+    setUploadedImages((p) => [...p, ...newUrls]);
+    setUploadingImg(false);
+  }, []);
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    accept: { "image/*": [".jpeg", ".jpg", ".png", ".webp"] },
+    maxFiles: 5,
+    maxSize: 5 * 1024 * 1024,
+  });
+
+  const removeImage = (i: number) => {
+    setPreviews((p) => p.filter((_, idx) => idx !== i));
+    setUploadedImages((p) => p.filter((_, idx) => idx !== i));
+  };
+
+  const validate = () => {
+    const e: Record<string, string> = {};
+    if (!form.title.trim()) e.title = "Title inahitajika";
+    if (!form.price.trim()) e.price = "Bei inahitajika";
+    if (!form.city) e.city = "Chagua mji";
+    if (!form.location.trim()) e.location = "Eneo linahitajika";
+    if (!form.phone.trim()) e.phone = "Simu inahitajika";
+    if (form.phone && !/^0[67]\d{8}$/.test(form.phone)) e.phone = "Namba si sahihi (mfano: 0754123456)";
+    return e;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const newErrors = validate();
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      return;
-    }
-
+    if (Object.keys(newErrors).length > 0) { setErrors(newErrors); return; }
     setLoading(true);
     setApiError("");
-
     try {
       if (isLoggedIn()) {
-        // Save to backend
-        await createRoom({
-          title: form.title,
-          description: form.description,
-          price: parseInt(form.price),
-          location: form.location,
-          city: form.city,
-          images: form.image ? [form.image] : [],
-        });
+        await api.post("/rooms", { title: form.title, description: form.description, price: parseInt(form.price), location: form.location, city: form.city, images: uploadedImages });
       } else {
-        // Save to localStorage if not logged in
-        const existing = JSON.parse(localStorage.getItem("lokesta_rooms") || "[]");
-        existing.push({
-          ...form,
-          id: Date.now(),
-          price: parseInt(form.price),
-          images: [{ id: 1, url: form.image || "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2" }],
-          owner: { id: 0, name: "You", email: "" },
-          ownerId: 0,
-          createdAt: new Date().toISOString(),
-        });
-        localStorage.setItem("lokesta_rooms", JSON.stringify(existing));
+        const existing = JSON.parse(localStorage.getItem("nesto_rooms") || "[]");
+        existing.push({ ...form, id: Date.now(), price: parseInt(form.price), images: uploadedImages.map((url, i) => ({ id: i + 1, url })), owner: { id: 0, name: "You", email: "" }, ownerId: 0, createdAt: new Date().toISOString() });
+        localStorage.setItem("nesto_rooms", JSON.stringify(existing));
       }
-
       setSubmitted(true);
-      setTimeout(() => navigate("/rooms"), 2500);
+      setTimeout(() => navigate("/dashboard"), 2500);
     } catch (err: unknown) {
-      const msg = (err as { response?: { data?: { error?: string } } })?.response?.data?.error;
-      if (msg === "Hakuna ruhusa — ingia kwanza") {
-        setApiError("Ingia kwanza ili kuweka chumba kwenye database");
-      } else {
-        setApiError(msg || "Hitilafu imetokea — jaribu tena");
-      }
+      const msg = (err as any)?.response?.data?.error;
+      setApiError(msg || "Hitilafu imetokea — jaribu tena");
       setLoading(false);
     }
   };
 
+  const inp = (field: string): React.CSSProperties => ({
+    padding: "0.875rem 1rem", borderRadius: "10px",
+    border: `1.5px solid ${errors[field] ? "#ef4444" : borderColor}`,
+    fontSize: "0.9rem", color: textPrimary, background: inputBg,
+    fontFamily: "'DM Sans', sans-serif", outline: "none", width: "100%",
+  });
+
   if (submitted) {
     return (
-      <div style={s.successPage}>
-        <div style={s.successCard}>
+      <div style={{ minHeight: "80vh", display: "flex", alignItems: "center", justifyContent: "center", background: bg, padding: "2rem" }}>
+        <div style={{ background: cardBg, borderRadius: "24px", padding: "3rem 2rem", textAlign: "center", maxWidth: "400px", width: "100%", display: "flex", flexDirection: "column", alignItems: "center", gap: "1rem" }}>
           <div style={{ fontSize: "3.5rem" }}>🎉</div>
-          <h2 style={s.successTitle}>Chumba Kimewekwa!</h2>
-          <p style={s.successText}>"{form.title}" imewekwa kwenye LOKESTA.</p>
-          <div style={s.loaderWrap}><div style={s.loaderBar} /></div>
-          <p style={{ color: "#9ca3af", fontSize: "0.8rem" }}>Unahamishwa...</p>
+          <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.75rem", color: textPrimary }}>Chumba Kimewekwa!</h2>
+          <p style={{ color: textSecondary, fontSize: "0.9rem" }}>"{form.title}" imewekwa kwenye LOKESTA.</p>
+          <p style={{ color: textSecondary, fontSize: "0.8rem" }}>Unahamishwa Dashboard...</p>
         </div>
       </div>
     );
   }
 
-  const inputStyle = (field: string) => ({
-    ...s.input,
-    ...(errors[field] ? s.inputError : {}),
-  });
-
   return (
-    <div style={s.page}>
-      <div style={s.header}>
-        <div style={s.headerContent}>
-          <h1 style={s.title}>List Your Property</h1>
-          <p style={s.subtitle}>Reach thousands of tenants across Tanzania — for free</p>
+    <div style={{ minHeight: "100vh", background: bg, transition: "background 0.3s" }}>
+      {/* Header */}
+      <div style={{ background: "#0f1923", padding: "2rem 1.25rem" }}>
+        <div style={{ maxWidth: "720px", margin: "0 auto" }}>
+          <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(1.6rem, 4vw, 2.2rem)", color: "#fff", marginBottom: "0.4rem" }}>List Your Property</h1>
+          <p style={{ color: "#f97316", fontSize: "0.9rem" }}>Reach thousands of tenants — for free</p>
           {!isLoggedIn() && (
-            <div style={s.loginNotice}>
-              ⚠️ <Link to="/login" style={{ color: "#c9a84c", fontWeight: 600 }}>Login</Link> ili chumba chako kihifadhiwe kwenye database ya kweli
+            <div style={{ marginTop: "0.75rem", background: "rgba(249,115,22,0.1)", border: "1px solid rgba(249,115,22,0.2)", color: "rgba(255,255,255,0.7)", padding: "8px 14px", borderRadius: "8px", fontSize: "0.8rem", display: "inline-block" }}>
+              ⚠️ <Link to="/login" style={{ color: "#f97316", fontWeight: 600 }}>Login</Link> ili chumba chako kihifadhiwe kwenye database ya kweli
             </div>
           )}
         </div>
       </div>
 
-      <div style={s.container}>
-        <div style={s.formCard}>
-          <div style={s.formHeader}>
-            <span style={s.formBadge}>🏠 New Listing</span>
-            <p style={s.formSubtitle}>Fields zenye * zinahitajika</p>
-          </div>
+      <div style={{ maxWidth: "720px", margin: "0 auto", padding: "2rem 1.25rem 4rem" }}>
+        <div style={{ background: cardBg, borderRadius: "20px", padding: "clamp(1.25rem, 4vw, 2rem)", boxShadow: "0 4px 30px rgba(0,0,0,0.08)", border: `1px solid ${borderColor}` }}>
 
-          {apiError && <div style={s.apiError}>⚠️ {apiError}</div>}
-
-          <form onSubmit={handleSubmit} style={s.form}>
-            <div style={s.fieldGroup}>
-              <label style={s.label}>Property Title *</label>
-              <input name="title" value={form.title} onChange={handleChange} placeholder="e.g. Single Room - Njiro Center" style={inputStyle("title")} />
-              {errors.title && <span style={s.errorMsg}>{errors.title}</span>}
+          {apiError && (
+            <div style={{ background: "#fef2f2", border: "1px solid #fca5a5", color: "#dc2626", padding: "0.875rem 1rem", borderRadius: "10px", fontSize: "0.875rem", marginBottom: "1.25rem" }}>
+              ⚠️ {apiError}
             </div>
+          )}
 
-            <div style={s.row}>
-              <div style={{ ...s.fieldGroup, flex: 1 }}>
-                <label style={s.label}>Monthly Price (Tsh) *</label>
-                <input name="price" type="number" value={form.price} onChange={handleChange} placeholder="e.g. 80000" style={inputStyle("price")} />
-                {errors.price && <span style={s.errorMsg}>{errors.price}</span>}
+          <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
+
+            {/* Photo Upload */}
+            <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+              <label style={{ fontSize: "0.85rem", fontWeight: 600, color: dark ? "rgba(255,255,255,0.7)" : "#374151" }}>
+                📸 Picha za Chumba (max 5)
+              </label>
+              <div {...getRootProps()} style={{ border: `2px dashed ${isDragActive ? "#f97316" : borderColor}`, borderRadius: "14px", padding: "clamp(1.25rem, 4vw, 2rem)", textAlign: "center", cursor: "pointer", background: isDragActive ? "rgba(249,115,22,0.06)" : inputBg, transition: "all 0.2s" }}>
+                <input {...getInputProps()} />
+                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "0.75rem" }}>
+                  <span style={{ fontSize: "2rem" }}>📸</span>
+                  {isDragActive ? (
+                    <p style={{ color: "#f97316", fontWeight: 600, fontSize: "0.9rem" }}>Acha picha hapa!</p>
+                  ) : (
+                    <>
+                      <p style={{ color: textPrimary, fontWeight: 600, fontSize: "0.9rem" }}>Bonyeza au drag picha hapa</p>
+                      <p style={{ color: textSecondary, fontSize: "0.75rem" }}>JPG, PNG, WebP — Max 5MB</p>
+                      <div style={{ background: "linear-gradient(135deg, #f97316, #fbbf24)", color: "#fff", padding: "8px 20px", borderRadius: "8px", fontSize: "0.82rem", fontWeight: 600 }}>
+                        Chagua Picha
+                      </div>
+                    </>
+                  )}
+                </div>
               </div>
-              <div style={{ ...s.fieldGroup, flex: 1 }}>
-                <label style={s.label}>City *</label>
-                <select name="city" value={form.city} onChange={handleChange} style={inputStyle("city")}>
-                  <option value="">Select city...</option>
-                  {cities.map((c) => <option key={c} value={c}>{c}</option>)}
-                </select>
-                {errors.city && <span style={s.errorMsg}>{errors.city}</span>}
-              </div>
-            </div>
 
-            <div style={s.fieldGroup}>
-              <label style={s.label}>Specific Location / Street *</label>
-              <input name="location" value={form.location} onChange={handleChange} placeholder="e.g. Njiro, near Shoprite" style={inputStyle("location")} />
-              {errors.location && <span style={s.errorMsg}>{errors.location}</span>}
-            </div>
+              {uploadingImg && (
+                <div style={{ display: "flex", alignItems: "center", gap: "8px", color: "#f97316", fontSize: "0.82rem" }}>
+                  <span style={{ width: "16px", height: "16px", borderRadius: "50%", border: "2px solid rgba(249,115,22,0.3)", borderTopColor: "#f97316", animation: "spin 0.8s linear infinite", display: "inline-block" }} />
+                  Inapakia picha...
+                </div>
+              )}
 
-            <div style={s.fieldGroup}>
-              <label style={s.label}>Description</label>
-              <textarea name="description" value={form.description} onChange={handleChange} placeholder="Describe your property..." rows={4} style={s.textarea} />
-            </div>
-
-            <div style={s.fieldGroup}>
-              <label style={s.label}>Your Phone Number *</label>
-              <input name="phone" value={form.phone} onChange={handleChange} placeholder="e.g. 0754123456" style={inputStyle("phone")} />
-              {errors.phone && <span style={s.errorMsg}>{errors.phone}</span>}
-              <span style={s.hint}>📞 Phone itafichwa mpaka tenant aombe</span>
-            </div>
-
-            <div style={s.fieldGroup}>
-              <label style={s.label}>Photo URL (optional)</label>
-              <input name="image" value={form.image} onChange={handleChange} placeholder="https://... (paste image link)" style={s.input} />
-              {form.image && (
-                <img src={form.image} alt="preview" style={s.preview} onError={(e) => (e.currentTarget.style.display = "none")} />
+              {previews.length > 0 && (
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(80px, 1fr))", gap: "0.625rem" }}>
+                  {previews.map((preview, i) => (
+                    <div key={i} style={{ position: "relative", borderRadius: "10px", overflow: "hidden", aspectRatio: "1", border: `2px solid ${i === 0 ? "#f97316" : borderColor}` }}>
+                      <img src={preview} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                      {i === 0 && <div style={{ position: "absolute", top: "3px", left: "3px", background: "#f97316", color: "#fff", fontSize: "0.55rem", fontWeight: 800, padding: "2px 5px", borderRadius: "4px" }}>MAIN</div>}
+                      <button type="button" onClick={() => removeImage(i)} style={{ position: "absolute", top: "3px", right: "3px", background: "rgba(0,0,0,0.6)", color: "#fff", border: "none", borderRadius: "50%", width: "20px", height: "20px", cursor: "pointer", fontSize: "0.65rem", display: "flex", alignItems: "center", justifyContent: "center" }}>✕</button>
+                    </div>
+                  ))}
+                </div>
               )}
             </div>
 
-            <button type="submit" style={{ ...s.submitBtn, opacity: loading ? 0.7 : 1 }} disabled={loading}>
-              {loading ? "Inaweka..." : "🏠 Publish Property Listing"}
+            {/* Title */}
+            <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+              <label style={{ fontSize: "0.85rem", fontWeight: 600, color: dark ? "rgba(255,255,255,0.7)" : "#374151" }}>Property Title *</label>
+              <input name="title" value={form.title} onChange={handleChange} placeholder="e.g. Single Room - Njiro Center" style={inp("title")} />
+              {errors.title && <span style={{ color: "#ef4444", fontSize: "0.75rem" }}>{errors.title}</span>}
+            </div>
+
+            {/* Price + City — stack on mobile */}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: "1rem" }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                <label style={{ fontSize: "0.85rem", fontWeight: 600, color: dark ? "rgba(255,255,255,0.7)" : "#374151" }}>Bei ya Mwezi (Tsh) *</label>
+                <input name="price" type="number" value={form.price} onChange={handleChange} placeholder="e.g. 80000" style={inp("price")} />
+                {errors.price && <span style={{ color: "#ef4444", fontSize: "0.75rem" }}>{errors.price}</span>}
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                <label style={{ fontSize: "0.85rem", fontWeight: 600, color: dark ? "rgba(255,255,255,0.7)" : "#374151" }}>Mji *</label>
+                <select name="city" value={form.city} onChange={handleChange} style={inp("city")}>
+                  <option value="">Chagua mji...</option>
+                  {cities.map((c) => <option key={c} value={c}>{c}</option>)}
+                </select>
+                {errors.city && <span style={{ color: "#ef4444", fontSize: "0.75rem" }}>{errors.city}</span>}
+              </div>
+            </div>
+
+            {/* Location */}
+            <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+              <label style={{ fontSize: "0.85rem", fontWeight: 600, color: dark ? "rgba(255,255,255,0.7)" : "#374151" }}>Eneo / Mtaa *</label>
+              <input name="location" value={form.location} onChange={handleChange} placeholder="e.g. Njiro, karibu na Shoprite" style={inp("location")} />
+              {errors.location && <span style={{ color: "#ef4444", fontSize: "0.75rem" }}>{errors.location}</span>}
+            </div>
+
+            {/* Description */}
+            <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+              <label style={{ fontSize: "0.85rem", fontWeight: 600, color: dark ? "rgba(255,255,255,0.7)" : "#374151" }}>Maelezo</label>
+              <textarea name="description" value={form.description} onChange={handleChange} placeholder="Elezea chumba chako — amenities, sheria, nk..." rows={4} style={{ ...inp("description"), resize: "vertical", lineHeight: 1.6 }} />
+            </div>
+
+            {/* Phone */}
+            <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+              <label style={{ fontSize: "0.85rem", fontWeight: 600, color: dark ? "rgba(255,255,255,0.7)" : "#374151" }}>Nambari ya Simu *</label>
+              <input name="phone" value={form.phone} onChange={handleChange} placeholder="e.g. 0754123456" style={inp("phone")} />
+              {errors.phone && <span style={{ color: "#ef4444", fontSize: "0.75rem" }}>{errors.phone}</span>}
+              <span style={{ color: textSecondary, fontSize: "0.75rem" }}>📞 Namba itafichwa mpaka tenant alipe 10,000 Tsh</span>
+            </div>
+
+            <button type="submit" disabled={loading || uploadingImg} style={{ background: loading ? "#888" : "linear-gradient(135deg, #f97316, #fbbf24)", color: "#fff", border: "none", borderRadius: "12px", padding: "1rem", fontSize: "1rem", fontWeight: 700, cursor: loading ? "not-allowed" : "pointer", fontFamily: "'DM Sans', sans-serif", marginTop: "0.5rem", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", width: "100%" }}>
+              {loading ? (
+                <><span style={{ width: "18px", height: "18px", borderRadius: "50%", border: "2px solid rgba(255,255,255,0.3)", borderTopColor: "#fff", animation: "spin 0.8s linear infinite", display: "inline-block" }} /> Inaweka...</>
+              ) : "🏠 Chapisha Tangazo"}
             </button>
           </form>
-        </div>
-
-        {/* Tips sidebar */}
-        <div style={s.tips}>
-          <h3 style={s.tipsTitle}>💡 Tips</h3>
-          {[
-            { icon: "📸", tip: "Ongeza picha nzuri" },
-            { icon: "📍", tip: "Weka location sahihi" },
-            { icon: "💰", tip: "Bei ya soko" },
-            { icon: "📝", tip: "Eleza amenities" },
-            { icon: "📞", tip: "Simu iwe on" },
-          ].map((t, i) => (
-            <div key={i} style={s.tip}>
-              <span style={{ fontSize: "1.2rem" }}>{t.icon}</span>
-              <span style={s.tipText}>{t.tip}</span>
-            </div>
-          ))}
-
-          {!isLoggedIn() && (
-            <div style={s.loginTip}>
-              <p style={{ color: "#c9a84c", fontSize: "0.82rem", fontWeight: 600, marginBottom: "0.5rem" }}>
-                🔑 Ingia ili:
-              </p>
-              <p style={{ color: "rgba(255,255,255,0.6)", fontSize: "0.78rem", lineHeight: 1.5 }}>
-                • Chumba chako kionekane kwa wote<br />
-                • Manage listings yako<br />
-                • Pokea maombi ya wapangaji
-              </p>
-              <Link to="/login" style={s.loginTipBtn}>Login Sasa</Link>
-            </div>
-          )}
         </div>
       </div>
     </div>
   );
 }
-
-const s: Record<string, React.CSSProperties> = {
-  page: { minHeight: "100vh", background: "#f8f4ed" },
-  header: { background: "#0f1923", padding: "3rem 1.5rem" },
-  headerContent: { maxWidth: "1000px", margin: "0 auto" },
-  title: { fontFamily: "'Playfair Display', serif", fontSize: "2.5rem", color: "#fff", marginBottom: "0.5rem" },
-  subtitle: { color: "#c9a84c", fontSize: "1rem", marginBottom: "0.75rem" },
-  loginNotice: { display: "inline-block", background: "rgba(201,168,76,0.12)", border: "1px solid rgba(201,168,76,0.25)", color: "rgba(255,255,255,0.7)", padding: "8px 16px", borderRadius: "8px", fontSize: "0.82rem" },
-  container: { maxWidth: "1000px", margin: "0 auto", padding: "2.5rem 1.5rem 4rem", display: "grid", gridTemplateColumns: "1fr 260px", gap: "2rem", alignItems: "start" },
-  formCard: { background: "#fff", borderRadius: "20px", padding: "2rem", boxShadow: "0 4px 30px rgba(0,0,0,0.08)" },
-  formHeader: { marginBottom: "1.75rem" },
-  formBadge: { display: "inline-block", background: "#f8f4ed", color: "#0f1923", fontSize: "0.82rem", fontWeight: 600, padding: "6px 14px", borderRadius: "20px", marginBottom: "0.75rem" },
-  formSubtitle: { color: "#6b7280", fontSize: "0.875rem" },
-  apiError: { background: "#fef2f2", border: "1px solid #fca5a5", color: "#dc2626", padding: "0.875rem 1rem", borderRadius: "10px", fontSize: "0.875rem", marginBottom: "1.25rem" },
-  form: { display: "flex", flexDirection: "column", gap: "1.25rem" },
-  fieldGroup: { display: "flex", flexDirection: "column", gap: "6px" },
-  row: { display: "flex", gap: "1rem", flexWrap: "wrap" },
-  label: { fontSize: "0.85rem", fontWeight: 600, color: "#374151", letterSpacing: "0.02em" },
-  input: { padding: "0.875rem 1rem", borderRadius: "10px", border: "1.5px solid #e5e0d8", fontSize: "0.9rem", color: "#0f1923", background: "#fdfaf7", width: "100%", boxSizing: "border-box", fontFamily: "'DM Sans', sans-serif", outline: "none" },
-  inputError: { borderColor: "#ef4444", background: "#fff8f8" },
-  textarea: { padding: "0.875rem 1rem", borderRadius: "10px", border: "1.5px solid #e5e0d8", fontSize: "0.9rem", color: "#0f1923", background: "#fdfaf7", resize: "vertical", fontFamily: "'DM Sans', sans-serif", lineHeight: 1.6, outline: "none" },
-  errorMsg: { color: "#ef4444", fontSize: "0.78rem" },
-  hint: { color: "#9ca3af", fontSize: "0.78rem" },
-  preview: { width: "100%", height: "160px", objectFit: "cover", borderRadius: "10px", marginTop: "4px" },
-  submitBtn: { background: "#0f1923", color: "#c9a84c", border: "none", borderRadius: "12px", padding: "1rem", fontSize: "1rem", fontWeight: 700, cursor: "pointer", fontFamily: "'DM Sans', sans-serif", transition: "all 0.2s", marginTop: "0.5rem" },
-  tips: { background: "#0f1923", borderRadius: "20px", padding: "1.75rem", position: "sticky", top: "90px", display: "flex", flexDirection: "column", gap: "1rem" },
-  tipsTitle: { fontFamily: "'Playfair Display', serif", color: "#c9a84c", fontSize: "1.1rem", marginBottom: "0.25rem" },
-  tip: { display: "flex", alignItems: "center", gap: "10px" },
-  tipText: { color: "rgba(255,255,255,0.7)", fontSize: "0.85rem", lineHeight: 1.4 },
-  loginTip: { marginTop: "0.5rem", background: "rgba(201,168,76,0.08)", border: "1px solid rgba(201,168,76,0.2)", borderRadius: "12px", padding: "1rem" },
-  loginTipBtn: { display: "block", textAlign: "center", marginTop: "0.75rem", background: "#c9a84c", color: "#0f1923", padding: "8px", borderRadius: "8px", fontWeight: 700, fontSize: "0.82rem" },
-  successPage: { minHeight: "80vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#f8f4ed", padding: "2rem" },
-  successCard: { background: "#fff", borderRadius: "24px", padding: "3rem", textAlign: "center", maxWidth: "420px", boxShadow: "0 20px 60px rgba(0,0,0,0.1)", display: "flex", flexDirection: "column", alignItems: "center", gap: "1rem" },
-  successTitle: { fontFamily: "'Playfair Display', serif", fontSize: "1.8rem", color: "#0f1923" },
-  successText: { color: "#6b7280", fontSize: "0.9rem", lineHeight: 1.6 },
-  loaderWrap: { width: "100%", height: "4px", background: "#f3f4f6", borderRadius: "2px", overflow: "hidden" },
-  loaderBar: { height: "100%", width: "100%", background: "#c9a84c", animation: "shimmer 2.5s linear" },
-};
