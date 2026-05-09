@@ -19,7 +19,10 @@ export default function AddProperty() {
   const [uploadedImages, setUploadedImages] = useState<string[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
   const [apiError, setApiError] = useState("");
-  const [form, setForm] = useState({ title: "", price: "", city: "", location: "", description: "", phone: "" });
+  const [form, setForm] = useState({
+    title: "", price: "", city: "", location: "",
+    description: "", phone: "",
+  });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const cities = ["Arusha", "Dar es Salaam", "Moshi", "Zanzibar", "Dodoma", "Mwanza", "Tanga", "Other"];
@@ -42,10 +45,12 @@ export default function AddProperty() {
     const fd = new FormData();
     fd.append("file", file);
     fd.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
-    const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, { method: "POST", body: fd });
-    if (!res.ok) throw new Error("Upload imeshindwa");
+    const res = await fetch(
+      `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
+      { method: "POST", body: fd }
+    );
+    if (!res.ok) throw new Error("Upload failed");
     const data = await res.json();
-    if (!data.secure_url) throw new Error("URL haikupatikana");
     return data.secure_url;
   };
 
@@ -57,8 +62,12 @@ export default function AddProperty() {
     for (const file of acceptedFiles.slice(0, 5)) {
       const previewUrl = URL.createObjectURL(file);
       newPreviews.push(previewUrl);
-      try { newUrls.push(await uploadToCloudinary(file)); }
-      catch { newUrls.push(previewUrl); }
+      try {
+        const url = await uploadToCloudinary(file);
+        newUrls.push(url);
+      } catch {
+        newUrls.push(previewUrl);
+      }
     }
     setPreviews((p) => [...p, ...newPreviews]);
     setUploadedImages((p) => [...p, ...newUrls]);
@@ -81,7 +90,7 @@ export default function AddProperty() {
     const e: Record<string, string> = {};
     if (!form.title.trim()) e.title = "Title inahitajika";
     if (!form.price.trim()) e.price = "Bei inahitajika";
-    else if (isNaN(parseInt(form.price)) || parseInt(form.price) <= 0) e.price = "Bei lazima iwe nambari sahihi";
+    else if (isNaN(parseInt(form.price)) || parseInt(form.price) <= 0) e.price = "Weka bei sahihi";
     if (!form.city) e.city = "Chagua mji";
     if (!form.location.trim()) e.location = "Eneo linahitajika";
     if (!form.phone.trim()) e.phone = "Simu inahitajika";
@@ -91,27 +100,67 @@ export default function AddProperty() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Validate fields
     const newErrors = validate();
-    if (Object.keys(newErrors).length > 0) { setErrors(newErrors); return; }
-    if (!isLoggedIn()) { setApiError("Lazima uingie kwanza — bonyeza Login"); return; }
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
+    // Must be logged in
+    if (!isLoggedIn()) {
+      setApiError("Lazima uingie kwanza ili kuweka chumba");
+      return;
+    }
+
     setLoading(true);
     setApiError("");
+
     try {
-      await api.post("/rooms", {
+      // Build payload matching backend Prisma schema exactly
+      const payload: Record<string, unknown> = {
         title: form.title.trim(),
-        description: form.description.trim() || "Chumba kinapatikana",
+        description: form.description.trim() || `${form.city} room available`,
         price: parseInt(form.price),
         location: form.location.trim(),
         city: form.city,
-        phone: form.phone.trim(),
-        images: uploadedImages.length > 0 ? uploadedImages : [],
-      });
+      };
+
+      // Add images if uploaded
+      if (uploadedImages.length > 0) {
+        // Backend expects images as array of URLs or objects
+        payload.images = uploadedImages;
+        // Also set main image for backward compat
+        payload.image = uploadedImages[0];
+      }
+
+      // Add phone if backend supports it
+      if (form.phone.trim()) {
+        payload.phone = form.phone.trim();
+      }
+
+      await api.post("/rooms", payload);
       setSubmitted(true);
       setTimeout(() => navigate("/dashboard"), 2500);
+
     } catch (err: unknown) {
       const e = err as any;
-      const msg = e?.response?.data?.error || e?.response?.data?.message || e?.message;
-      setApiError(msg || "Imeshindwa kuchapisha — jaribu tena");
+      const status = e?.response?.status;
+      const msg = e?.response?.data?.error || e?.response?.data?.message || e?.message || "";
+
+      if (status === 401 || status === 403) {
+        setApiError("Session imekwisha — ingia tena");
+        setTimeout(() => navigate("/login"), 2000);
+      } else if (status === 400) {
+        setApiError(`Taarifa si sahihi: ${msg || "angalia fields zote"}`);
+      } else if (status === 0 || e?.code === "ERR_NETWORK") {
+        setApiError("Hakuna mtandao — angalia internet yako");
+      } else if (status >= 500) {
+        setApiError("Tatizo la seva — jaribu tena baadaye");
+      } else {
+        setApiError(msg || "Imeshindwa kuchapisha — jaribu tena");
+      }
     } finally {
       setLoading(false);
     }
@@ -145,11 +194,13 @@ export default function AddProperty() {
       {/* Header */}
       <div style={{ background: "#0f1923", padding: "2rem 1.25rem" }}>
         <div style={{ maxWidth: "720px", margin: "0 auto" }}>
-          <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(1.6rem, 4vw, 2.2rem)", color: "#fff", marginBottom: "0.4rem" }}>List Your Property</h1>
+          <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(1.6rem, 4vw, 2.2rem)", color: "#fff", marginBottom: "0.4rem" }}>
+            List Your Property
+          </h1>
           <p style={{ color: "#f97316", fontSize: "0.9rem" }}>Reach thousands of tenants — for free</p>
           {!isLoggedIn() && (
             <div style={{ marginTop: "0.875rem", background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.25)", color: "#f87171", padding: "10px 16px", borderRadius: "10px", fontSize: "0.82rem", display: "inline-flex", alignItems: "center", gap: "8px" }}>
-              ⚠️ <span><Link to="/login" style={{ color: "#fca5a5", fontWeight: 700 }}>Ingia kwanza</Link> ili chumba chako kionekane na wote</span>
+              ⚠️ <span><Link to="/login" style={{ color: "#fca5a5", fontWeight: 700 }}>Ingia kwanza</Link> ili chumba kionekane na wote</span>
             </div>
           )}
         </div>
@@ -163,19 +214,24 @@ export default function AddProperty() {
               <span style={{ flexShrink: 0 }}>⚠️</span>
               <div>
                 <p style={{ fontWeight: 600 }}>{apiError}</p>
-                {!isLoggedIn() && <Link to="/login" style={{ color: "#dc2626", fontWeight: 700, textDecoration: "underline", fontSize: "0.82rem" }}>→ Ingia sasa</Link>}
+                {!isLoggedIn() && (
+                  <Link to="/login" style={{ color: "#dc2626", fontWeight: 700, textDecoration: "underline", fontSize: "0.82rem" }}>→ Ingia sasa</Link>
+                )}
               </div>
             </div>
           )}
 
           <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
 
-            {/* Photo Upload */}
+            {/* Photos */}
             <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
               <label style={{ fontSize: "0.85rem", fontWeight: 600, color: dark ? "rgba(255,255,255,0.7)" : "#374151" }}>
                 📸 Picha za Chumba (max 5)
               </label>
-              <div {...getRootProps()} style={{ border: `2px dashed ${isDragActive ? "#f97316" : borderColor}`, borderRadius: "14px", padding: "clamp(1.25rem, 4vw, 2rem)", textAlign: "center", cursor: "pointer", background: isDragActive ? "rgba(249,115,22,0.06)" : inputBg, transition: "all 0.2s" }}>
+              <div
+                {...getRootProps()}
+                style={{ border: `2px dashed ${isDragActive ? "#f97316" : borderColor}`, borderRadius: "14px", padding: "clamp(1.25rem, 4vw, 2rem)", textAlign: "center", cursor: "pointer", background: isDragActive ? "rgba(249,115,22,0.06)" : inputBg, transition: "all 0.2s" }}
+              >
                 <input {...getInputProps()} />
                 <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "0.75rem" }}>
                   <span style={{ fontSize: "2rem" }}>📸</span>
@@ -224,7 +280,7 @@ export default function AddProperty() {
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: "1rem" }}>
               <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
                 <label style={{ fontSize: "0.85rem", fontWeight: 600, color: dark ? "rgba(255,255,255,0.7)" : "#374151" }}>Bei ya Mwezi (Tsh) *</label>
-                <input name="price" type="number" value={form.price} onChange={handleChange} placeholder="e.g. 80000" style={inp("price")} />
+                <input name="price" type="number" min="1000" value={form.price} onChange={handleChange} placeholder="e.g. 80000" style={inp("price")} />
                 {errors.price && <span style={{ color: "#ef4444", fontSize: "0.75rem" }}>{errors.price}</span>}
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
@@ -253,14 +309,21 @@ export default function AddProperty() {
             {/* Phone */}
             <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
               <label style={{ fontSize: "0.85rem", fontWeight: 600, color: dark ? "rgba(255,255,255,0.7)" : "#374151" }}>Nambari ya Simu *</label>
-              <input name="phone" value={form.phone} onChange={handleChange} placeholder="e.g. 0754123456" style={inp("phone")} />
+              <input name="phone" value={form.phone} onChange={handleChange} placeholder="e.g. 0754123456" type="tel" style={inp("phone")} />
               {errors.phone && <span style={{ color: "#ef4444", fontSize: "0.75rem" }}>{errors.phone}</span>}
               <span style={{ color: textSecondary, fontSize: "0.75rem" }}>📞 Namba itafichwa mpaka tenant alipe 10,000 Tsh</span>
             </div>
 
-            <button type="submit" disabled={loading || uploadingImg} style={{ background: loading ? "#888" : "linear-gradient(135deg, #f97316, #fbbf24)", color: "#fff", border: "none", borderRadius: "12px", padding: "1rem", fontSize: "1rem", fontWeight: 700, cursor: loading ? "not-allowed" : "pointer", fontFamily: "'DM Sans', sans-serif", marginTop: "0.5rem", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", width: "100%" }}>
+            <button
+              type="submit"
+              disabled={loading || uploadingImg}
+              style={{ background: loading ? "#888" : "linear-gradient(135deg, #f97316, #fbbf24)", color: "#fff", border: "none", borderRadius: "12px", padding: "1rem", fontSize: "1rem", fontWeight: 700, cursor: loading ? "not-allowed" : "pointer", fontFamily: "'DM Sans', sans-serif", marginTop: "0.5rem", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", width: "100%", opacity: loading ? 0.75 : 1 }}
+            >
               {loading ? (
-                <><span style={{ width: "18px", height: "18px", borderRadius: "50%", border: "2px solid rgba(255,255,255,0.3)", borderTopColor: "#fff", animation: "spin 0.8s linear infinite", display: "inline-block" }} /> Inachapisha...</>
+                <>
+                  <span style={{ width: "18px", height: "18px", borderRadius: "50%", border: "2px solid rgba(255,255,255,0.3)", borderTopColor: "#fff", animation: "spin 0.8s linear infinite", display: "inline-block" }} />
+                  Inachapisha...
+                </>
               ) : "🏠 Chapisha Tangazo"}
             </button>
           </form>

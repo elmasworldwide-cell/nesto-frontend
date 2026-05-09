@@ -1,8 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useApp } from "../context/AppContext";
-import { useQuery } from "@tanstack/react-query";
-import { getRooms, formatPrice } from "../services/roomsService";
 
 const heroImages = [
   "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=1400&q=80",
@@ -20,22 +18,12 @@ const cities = [
   { name: "Mwanza", img: "https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?w=400&q=70", rooms: 88 },
 ];
 
-const steps = [
-  { num: "01", icon: "🔍", title: "Tafuta", desc: "Tafuta chumba kwa mji au mtaa" },
-  { num: "02", icon: "🏠", title: "Chagua", desc: "Angalia picha, bei na maelezo" },
-  { num: "03", icon: "🔓", title: "Fungua", desc: "Lipa 10,000 Tsh kupata namba ya mmiliki" },
-  { num: "04", icon: "✅", title: "Hamia", desc: "Wasiliana na mmiliki uhamie" },
-];
-
 export default function Home() {
   const navigate = useNavigate();
   const { theme, t } = useApp();
   const dark = theme === "dark";
   const [heroIdx, setHeroIdx] = useState(0);
   const [search, setSearch] = useState("");
-
-  const { data: rooms } = useQuery({ queryKey: ["rooms"], queryFn: getRooms });
-  const hasRooms = rooms && rooms.length > 0;
 
   useEffect(() => {
     const interval = setInterval(() => setHeroIdx((i) => (i + 1) % heroImages.length), 5000);
@@ -45,10 +33,7 @@ export default function Home() {
   const bg = dark ? "#0f1923" : "#f8f4ed";
   const textPrimary = dark ? "#f8f4ed" : "#0f1923";
   const textSecondary = dark ? "rgba(255,255,255,0.5)" : "#6b7280";
-  const cardBg = dark ? "#1a2a3a" : "#ffffff";
   const borderColor = dark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.06)";
-
-  const handleSearch = () => navigate(search.trim() ? `/rooms?search=${encodeURIComponent(search)}` : "/rooms");
 
   return (
     <div style={{ background: bg, transition: "background 0.3s" }}>
@@ -79,9 +64,20 @@ export default function Home() {
           <div style={{ display: "flex", width: "100%", maxWidth: "540px", borderRadius: "14px", overflow: "hidden", boxShadow: "0 8px 40px rgba(0,0,0,0.3)", background: "#fff" }} className="hero-search">
             <div style={{ display: "flex", alignItems: "center", flex: 1, padding: "0 1.25rem", gap: "10px" }}>
               <span style={{ fontSize: "1.1rem" }}>🔍</span>
-              <input type="text" value={search} onChange={(e) => setSearch(e.target.value)} onKeyDown={(e) => e.key === "Enter" && handleSearch()} placeholder={t("home.searchPlaceholder")} style={{ flex: 1, border: "none", outline: "none", fontSize: "0.95rem", color: "#0f1923", background: "transparent", padding: "1rem 0", fontFamily: "'DM Sans', sans-serif" }} />
+              <input
+                type="text"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && navigate(search.trim() ? `/rooms?search=${encodeURIComponent(search)}` : "/rooms")}
+                placeholder={t("home.searchPlaceholder")}
+                style={{ flex: 1, border: "none", outline: "none", fontSize: "0.95rem", color: "#0f1923", background: "transparent", padding: "1rem 0", fontFamily: "'DM Sans', sans-serif" }}
+              />
             </div>
-            <button onClick={handleSearch} style={{ background: "linear-gradient(135deg, #f97316, #fbbf24)", color: "#fff", border: "none", padding: "0 1.5rem", fontWeight: 700, fontSize: "0.9rem", cursor: "pointer", fontFamily: "'DM Sans', sans-serif", whiteSpace: "nowrap" }} className="hero-search-btn">
+            <button
+              onClick={() => navigate(search.trim() ? `/rooms?search=${encodeURIComponent(search)}` : "/rooms")}
+              className="hero-search-btn"
+              style={{ background: "linear-gradient(135deg, #f97316, #fbbf24)", color: "#fff", border: "none", padding: "0 1.5rem", fontWeight: 700, fontSize: "0.9rem", cursor: "pointer", fontFamily: "'DM Sans', sans-serif", whiteSpace: "nowrap" }}
+            >
               {t("home.searchBtn")}
             </button>
           </div>
@@ -97,7 +93,7 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Dots */}
+        {/* Slideshow dots */}
         <div style={{ position: "absolute", bottom: "1.5rem", left: "50%", transform: "translateX(-50%)", display: "flex", gap: "8px", zIndex: 2 }}>
           {heroImages.map((_, i) => (
             <button key={i} onClick={() => setHeroIdx(i)} style={{ width: i === heroIdx ? "24px" : "8px", height: "8px", borderRadius: "4px", background: i === heroIdx ? "#f97316" : "rgba(255,255,255,0.4)", border: "none", cursor: "pointer", transition: "all 0.3s", padding: 0 }} />
@@ -117,54 +113,19 @@ export default function Home() {
         </div>
       </div>
 
-      {/* ── LIVE ROOMS — only show if rooms exist ── */}
-      {hasRooms && (
-        <div style={{ maxWidth: "1100px", margin: "0 auto", padding: "4rem 1.25rem 2rem" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: "2rem", flexWrap: "wrap", gap: "1rem" }}>
-            <div>
-              <h2 className="section-title" style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(1.5rem, 3vw, 2rem)", color: textPrimary, marginBottom: "0.4rem" }}>
-                Vyumba Vilivyoongezwa Hivi Karibuni
-              </h2>
-              <p style={{ color: textSecondary, fontSize: "0.85rem" }}>🟢 Live kutoka database</p>
-            </div>
-            <Link to="/rooms" style={{ background: "linear-gradient(135deg, #f97316, #fbbf24)", color: "#fff", padding: "0.7rem 1.4rem", borderRadius: "10px", fontWeight: 700, fontSize: "0.875rem", whiteSpace: "nowrap" }}>
-              Ona Zote →
-            </Link>
-          </div>
-
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: "1.25rem" }} className="rooms-grid">
-            {rooms.slice(0, 6).map((room: any) => (
-              <Link key={room.id} to={`/property/${room.id}`} style={{ textDecoration: "none" }}>
-                <div style={{ background: cardBg, borderRadius: "16px", overflow: "hidden", border: `1px solid ${borderColor}`, transition: "transform 0.2s, box-shadow 0.2s" }}
-                  onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.transform = "translateY(-4px)"; (e.currentTarget as HTMLDivElement).style.boxShadow = "0 12px 40px rgba(0,0,0,0.15)"; }}
-                  onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.transform = "none"; (e.currentTarget as HTMLDivElement).style.boxShadow = "none"; }}
-                >
-                  <div style={{ position: "relative", height: "175px" }}>
-                    <img src={room.images?.[0]?.url || "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400&q=70"} alt={room.title} style={{ width: "100%", height: "100%", objectFit: "cover" }} onError={(e) => (e.currentTarget.src = "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400&q=70")} loading="lazy" />
-                    <div style={{ position: "absolute", top: "10px", right: "10px", background: "rgba(15,25,35,0.85)", color: "#f97316", padding: "4px 10px", borderRadius: "20px", fontSize: "0.78rem", fontWeight: 700 }}>{formatPrice(room.price)}/mo</div>
-                    <div style={{ position: "absolute", bottom: "10px", left: "10px", background: "#dcfce7", color: "#166534", padding: "3px 10px", borderRadius: "20px", fontSize: "0.65rem", fontWeight: 600 }}>🟢 Available</div>
-                  </div>
-                  <div style={{ padding: "0.875rem 1rem" }}>
-                    <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: "0.95rem", color: textPrimary, marginBottom: "3px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{room.title}</h3>
-                    <p style={{ color: textSecondary, fontSize: "0.75rem" }}>📍 {room.location}</p>
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
-      )}
-
       {/* ── CITIES ── */}
-      <div style={{ maxWidth: "1100px", margin: "0 auto", padding: hasRooms ? "2rem 1.25rem 4rem" : "4rem 1.25rem" }}>
+      <div style={{ maxWidth: "1100px", margin: "0 auto", padding: "4rem 1.25rem" }}>
         <div style={{ textAlign: "center", marginBottom: "2rem" }}>
-          <h2 className="section-title" style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(1.5rem, 3vw, 2rem)", color: textPrimary, marginBottom: "0.4rem" }}>{t("home.cities.title")}</h2>
+          <h2 className="section-title" style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(1.5rem, 3vw, 2rem)", color: textPrimary, marginBottom: "0.4rem" }}>
+            {t("home.cities.title")}
+          </h2>
           <p style={{ color: textSecondary, fontSize: "0.85rem" }}>{t("home.cities.sub")}</p>
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(155px, 1fr))", gap: "1rem" }} className="cities-grid">
           {cities.map((city) => (
             <Link key={city.name} to={`/rooms?city=${city.name}`} style={{ textDecoration: "none" }}>
-              <div style={{ borderRadius: "14px", overflow: "hidden", position: "relative", height: "125px", cursor: "pointer" }}
+              <div
+                style={{ borderRadius: "14px", overflow: "hidden", position: "relative", height: "125px", cursor: "pointer" }}
                 onMouseEnter={(e) => { const img = e.currentTarget.querySelector("img") as HTMLImageElement; if (img) img.style.transform = "scale(1.08)"; }}
                 onMouseLeave={(e) => { const img = e.currentTarget.querySelector("img") as HTMLImageElement; if (img) img.style.transform = "scale(1)"; }}
               >
@@ -178,11 +139,16 @@ export default function Home() {
             </Link>
           ))}
         </div>
+        <div style={{ textAlign: "center", marginTop: "2rem" }}>
+          <Link to="/rooms" style={{ background: "linear-gradient(135deg, #f97316, #fbbf24)", color: "#fff", padding: "0.875rem 2rem", borderRadius: "12px", fontWeight: 700, fontSize: "0.95rem", display: "inline-block" }}>
+            {t("home.browseRooms")}
+          </Link>
+        </div>
       </div>
 
       {/* ── HOW IT WORKS — 2x2 grid ── */}
       <div style={{ background: "#0f1923", padding: "4rem 1.25rem" }}>
-        <div style={{ maxWidth: "900px", margin: "0 auto" }}>
+        <div style={{ maxWidth: "860px", margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: "2.5rem" }}>
             <h2 className="section-title" style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(1.5rem, 3vw, 2rem)", color: "#fff", marginBottom: "0.4rem" }}>
               Jinsi LOKESTA Inavyofanya Kazi
@@ -190,16 +156,21 @@ export default function Home() {
             <p style={{ color: "rgba(255,255,255,0.45)", fontSize: "0.85rem" }}>Hatua 4 rahisi kupata chumba chako</p>
           </div>
 
-          {/* 2x2 grid */}
+          {/* 2×2 grid — Row 1: boxes 1 & 2, Row 2: boxes 3 & 4 */}
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.25rem" }}>
-            {steps.map((step) => (
-              <div key={step.num} style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(249,115,22,0.15)", borderRadius: "16px", padding: "1.75rem 1.5rem", display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+            {[
+              { num: "01", icon: "🔍", title: "Tafuta", desc: "Tafuta chumba kwa mji au mtaa unaopendelea" },
+              { num: "02", icon: "🏠", title: "Chagua", desc: "Angalia picha, bei na maelezo ya kina" },
+              { num: "03", icon: "🔓", title: "Fungua", desc: "Lipa 10,000 Tsh kupata namba ya mmiliki" },
+              { num: "04", icon: "✅", title: "Hamia", desc: "Wasiliana na mmiliki moja kwa moja uhamie" },
+            ].map((step) => (
+              <div key={step.num} style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(249,115,22,0.18)", borderRadius: "16px", padding: "1.75rem 1.5rem", display: "flex", flexDirection: "column", gap: "0.75rem" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                  <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "0.8rem", color: "#f97316", fontWeight: 700, letterSpacing: "0.08em" }}>{step.num}</span>
+                  <span style={{ background: "linear-gradient(135deg, #f97316, #fbbf24)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", fontWeight: 800, fontSize: "0.85rem", letterSpacing: "0.06em" }}>{step.num}</span>
                   <span style={{ fontSize: "1.75rem" }}>{step.icon}</span>
                 </div>
-                <h3 style={{ fontFamily: "'Playfair Display', serif", color: "#fff", fontSize: "1.1rem" }}>{step.title}</h3>
-                <p style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.85rem", lineHeight: 1.5 }}>{step.desc}</p>
+                <h3 style={{ fontFamily: "'Playfair Display', serif", color: "#fff", fontSize: "1.15rem" }}>{step.title}</h3>
+                <p style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.85rem", lineHeight: 1.6 }}>{step.desc}</p>
               </div>
             ))}
           </div>
