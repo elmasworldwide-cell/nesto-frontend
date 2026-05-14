@@ -1,28 +1,36 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { GoogleLogin } from "@react-oauth/google";
-import { loginUser, saveAuth } from "../services/authService";
-import { useApp } from "../context/AppContext";
-
-function LokestalLogo({ size = 60 }: { size?: number }) {
+function LokestalLogo({ size = 120 }: { size?: number }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 120 120" fill="none">
-      <circle cx="60" cy="60" r="58" fill="#0f1923" stroke="#f97316" strokeWidth="2"/>
-      <path d="M60 18 C44 18 30 32 30 48 C30 66 60 102 60 102 C60 102 90 66 90 48 C90 32 76 18 60 18Z" fill="url(#pinL)"/>
-      <path d="M44 50 L60 37 L76 50 L76 66 L66 66 L66 56 L54 56 L54 66 L44 66 Z" fill="white"/>
-      <rect x="54" y="56" width="12" height="10" rx="2" fill="#f97316" opacity="0.8"/>
-      <rect x="56" y="42" width="8" height="6" rx="1" fill="white" opacity="0.6"/>
-      <defs>
-        <linearGradient id="pinL" x1="30" y1="18" x2="90" y2="102" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stopColor="#fbbf24"/>
-          <stop offset="50%" stopColor="#f97316"/>
-          <stop offset="100%" stopColor="#ea580c"/>
-        </linearGradient>
-      </defs>
-    </svg>
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        width: "100%",
+        marginBottom: "20px",
+      }}
+    >
+      <img
+        src="/logo.png"
+        alt="Locesta Logo"
+        width={size}
+        style={{
+          height: "auto",
+          objectFit: "contain",
+          borderRadius: "20px",
+          boxShadow: "0 8px 25px rgba(0,0,0,0.25)",
+          transition: "transform 0.3s ease",
+          cursor: "pointer",
+        }}
+        onMouseOver={(e) => {
+          e.currentTarget.style.transform = "scale(1.05)";
+        }}
+        onMouseOut={(e) => {
+          e.currentTarget.style.transform = "scale(1)";
+        }}
+      />
+    </div>
   );
 }
-
 export default function Login() {
   const navigate = useNavigate();
   const { theme } = useApp();
