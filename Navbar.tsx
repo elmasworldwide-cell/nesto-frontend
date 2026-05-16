@@ -6,7 +6,7 @@ import { isLoggedIn, getCurrentUser, logout } from "../services/authService";
 const ADMIN_EMAIL = "elmasworldwide@gmail.com";
 
 // Logo matching the exact orange gradient design from image
-function LocestaLogo({ size = 42 }: { size?: number }) {
+function LokestaLogo({ size = 42 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
       {/* Dark background */}
@@ -74,7 +74,7 @@ export default function Navbar() {
 
           {/* Logo */}
           <Link to="/" style={{ display: "flex", alignItems: "center", gap: "0.625rem", marginRight: "auto", textDecoration: "none", flexShrink: 0 }}>
-            <LocestaLogo size={42} />
+            <LokestaLogo size={42} />
             <div style={{ display: "flex", flexDirection: "column", gap: "1px" }}>
               <span style={{ lineHeight: 1, fontFamily: "'DM Sans', sans-serif", fontWeight: 800, letterSpacing: "0.02em", fontSize: "1.45rem" }}>
                 <span style={{ color: "#ffffff" }}>Loce</span>

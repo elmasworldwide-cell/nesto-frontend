@@ -5,7 +5,7 @@ import { loginUser, saveAuth } from "../services/authService";
 import { useApp } from "../context/AppContext";
 
 // Exact same logo as Navbar
-function LocestaLogo({ size = 42 }: { size?: number }) {
+function LokestaLogo({ size = 42 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
       <rect width="100" height="100" rx="22" fill="#0f1923"/>
@@ -109,7 +109,7 @@ export default function Login() {
         <div style={{ position: "relative", zIndex: 1, textAlign: "center", maxWidth: "360px" }}>
           {/* Logo — identical to navbar */}
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "0.875rem", marginBottom: "2.5rem" }}>
-            <LocestaLogo size={80} />
+            <LokestaLogo size={80} />
             <div>
               <div style={{ fontSize: "2.4rem", fontWeight: 800, letterSpacing: "0.02em", fontFamily: "'DM Sans', sans-serif", lineHeight: 1 }}>
                 <span style={{ color: "#fff" }}>Loce</span>
@@ -149,7 +149,7 @@ export default function Login() {
 
           {/* Mobile logo — same as navbar */}
           <div style={{ display: "none", flexDirection: "column", alignItems: "center", gap: "0.75rem", marginBottom: "2rem" }} className="mobile-logo">
-            <LocestaLogo size={52} />
+            <LokestaLogo size={52} />
             <div style={{ textAlign: "center" }}>
               <div style={{ fontSize: "1.6rem", fontWeight: 800, fontFamily: "'DM Sans', sans-serif" }}>
                 <span style={{ color: textPrimary }}>Loce</span>
@@ -160,7 +160,7 @@ export default function Login() {
           </div>
 
           <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.8rem", color: textPrimary, marginBottom: "0.35rem" }}>Welcome back 👋</h1>
-          <p style={{ color: textSecondary, fontSize: "0.875rem", marginBottom: "1.75rem" }}>Sign in to your Locesta account</p>
+          <p style={{ color: textSecondary, fontSize: "0.875rem", marginBottom: "1.75rem" }}>Sign in to your Lokesta account</p>
 
           {error && (
             <div style={{ background: "#fef2f2", border: "1px solid #fca5a5", color: "#dc2626", padding: "0.875rem 1rem", borderRadius: "10px", fontSize: "0.875rem", marginBottom: "1.25rem", display: "flex", gap: "8px", alignItems: "flex-start" }}>

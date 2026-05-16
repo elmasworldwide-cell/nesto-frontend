@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { GoogleLogin } from "@react-oauth/google";
 import { loginUser, saveAuth } from "../services/authService";
 import { useApp } from "../context/AppContext";
-import { LocestaLogoBig, LocestaLogo } from "../components/LocestaLogo";
+import { LokestaLogoBig, LokestaLogo } from "../components/LokestaLogo";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -69,7 +69,7 @@ export default function Login() {
         <div style={{ position: "relative", zIndex: 1, textAlign: "center", maxWidth: "380px" }}>
           {/* Big logo matching brand image exactly */}
           <div style={{ marginBottom: "2.5rem" }}>
-            <LocestaLogoBig size={90} />
+            <LokestaLogoBig size={90} />
           </div>
 
           <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.9rem", color: "#fff", lineHeight: 1.3, marginBottom: "1rem" }}>
@@ -101,14 +101,14 @@ export default function Login() {
 
           {/* Mobile logo — shown only on mobile */}
           <div style={{ display: "none", justifyContent: "center", marginBottom: "2rem" }} className="mobile-logo">
-            <LocestaLogo size={36} showText={true} showTagline={false} />
+            <LokestaLogo size={36} showText={true} showTagline={false} />
           </div>
 
           <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.8rem", color: textPrimary, marginBottom: "0.35rem" }}>
             Welcome back 👋
           </h1>
           <p style={{ color: textSecondary, fontSize: "0.875rem", marginBottom: "1.75rem" }}>
-            Sign in to your Locesta account
+            Sign in to your Lokesta account
           </p>
 
           {error && (

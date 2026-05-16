@@ -277,7 +277,7 @@ function AdminDashboard({ dark, bg, cardBg, textPrimary, textSecondary, borderCo
                 {[
                   { label: "Admin Name", value: user?.name },
                   { label: "Admin Email", value: user?.email },
-                  { label: "Platform Name", value: "Locesta" },
+                  { label: "Platform Name", value: "Lokesta" },
                   { label: "Unlock Fee (Tsh)", value: "10000" },
                 ].map((f) => (
                   <div key={f.label} style={{ display: "flex", flexDirection: "column", gap: "6px" }}>

@@ -1,5 +1,5 @@
-// LocestaLogo.tsx — Shared logo component matching the exact brand image
-// Usage: <LocestaLogo size={44} /> or <LocestaLogo size={80} />
+// LokestaLogo.tsx — Shared logo component matching the exact brand image
+// Usage: <LokestaLogo size={44} /> or <LokestaLogo size={80} />
 
 interface LogoProps {
   size?: number;
@@ -7,7 +7,7 @@ interface LogoProps {
   showTagline?: boolean;
 }
 
-export function LocestaIcon({ size = 44 }: { size?: number }) {
+export function LokestaIcon({ size = 44 }: { size?: number }) {
   return (
     <svg
       width={size}
@@ -82,14 +82,14 @@ export function LocestaIcon({ size = 44 }: { size?: number }) {
   );
 }
 
-export function LocestaLogo({ size = 44, showText = true, showTagline = false }: LogoProps) {
+export function LokestaLogo({ size = 44, showText = true, showTagline = false }: LogoProps) {
   const iconSize = size;
   const textSize = size * 0.75;
   const taglineSize = size * 0.28;
 
   return (
     <div style={{ display: "flex", alignItems: "center", gap: size * 0.18 + "px" }}>
-      <LocestaIcon size={iconSize} />
+      <LokestaIcon size={iconSize} />
       {showText && (
         <div style={{ display: "flex", flexDirection: "column", gap: "1px" }}>
           <span style={{
@@ -120,10 +120,10 @@ export function LocestaLogo({ size = 44, showText = true, showTagline = false }:
 }
 
 // Large logo for Login/Register pages — with tagline below icon
-export function LocestaLogoBig({ size = 80 }: { size?: number }) {
+export function LokestaLogoBig({ size = 80 }: { size?: number }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "0.875rem" }}>
-      <LocestaIcon size={size} />
+      <LokestaIcon size={size} />
       <div style={{ textAlign: "center" }}>
         <div style={{
           fontFamily: "'DM Sans', sans-serif",
@@ -150,4 +150,4 @@ export function LocestaLogoBig({ size = 80 }: { size?: number }) {
   );
 }
 
-export default LocestaLogo;
+export default LokestaLogo;

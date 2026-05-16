@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { GoogleLogin } from "@react-oauth/google";
 import { registerUser, saveAuth } from "../services/authService";
 import { useApp } from "../context/AppContext";
-import { LocestaLogoBig, LocestaLogo } from "../components/LocestaLogo";
+import { LokestaLogoBig, LokestaLogo } from "../components/LokestaLogo";
 
 export default function Register() {
   const navigate = useNavigate();
@@ -81,11 +81,11 @@ export default function Register() {
 
         <div style={{ position: "relative", zIndex: 1, textAlign: "center", maxWidth: "380px" }}>
           <div style={{ marginBottom: "2.5rem" }}>
-            <LocestaLogoBig size={90} />
+            <LokestaLogoBig size={90} />
           </div>
 
           <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.9rem", color: "#fff", lineHeight: 1.3, marginBottom: "1rem" }}>
-            Join 2,400+ Tanzanians on Locesta
+            Join 2,400+ Tanzanians on Lokesta
           </h2>
           <p style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.9rem", lineHeight: 1.7, marginBottom: "2rem" }}>
             Jiunge bila malipo. Tafuta au weka chumba kwa urahisi.
@@ -113,11 +113,11 @@ export default function Register() {
 
           {/* Mobile logo */}
           <div style={{ display: "none", justifyContent: "center", marginBottom: "2rem" }} className="mobile-logo">
-            <LocestaLogo size={36} showText={true} showTagline={false} />
+            <LokestaLogo size={36} showText={true} showTagline={false} />
           </div>
 
           <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.8rem", color: textPrimary, marginBottom: "0.35rem" }}>Create account 🎉</h1>
-          <p style={{ color: textSecondary, fontSize: "0.875rem", marginBottom: "1.75rem" }}>Join Locesta and find your perfect space</p>
+          <p style={{ color: textSecondary, fontSize: "0.875rem", marginBottom: "1.75rem" }}>Join Lokesta and find your perfect space</p>
 
           {error && (
             <div style={{ background: "#fef2f2", border: "1px solid #fca5a5", color: "#dc2626", padding: "0.875rem 1rem", borderRadius: "10px", fontSize: "0.875rem", marginBottom: "1.25rem", display: "flex", gap: "8px", alignItems: "flex-start" }}>

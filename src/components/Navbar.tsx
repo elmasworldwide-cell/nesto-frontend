@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useApp } from "../context/AppContext";
 import { isLoggedIn, getCurrentUser, logout } from "../services/authService";
-import { LocestaLogo } from "./LocestaLogo";
+import { LokestaLogo } from "./LokestaLogo";
 
 const ADMIN_EMAIL = "elmasworldwide@gmail.com";
 
@@ -44,7 +44,7 @@ export default function Navbar() {
 
           {/* Logo — exact brand image */}
           <Link to="/" style={{ display: "flex", alignItems: "center", marginRight: "auto", textDecoration: "none", flexShrink: 0 }}>
-            <LocestaLogo size={40} showText={true} showTagline={false} />
+            <LokestaLogo size={40} showText={true} showTagline={false} />
           </Link>
 
           {/* Desktop Links */}

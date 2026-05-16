@@ -4,7 +4,7 @@ import { GoogleLogin } from "@react-oauth/google";
 import { registerUser, saveAuth } from "../services/authService";
 import { useApp } from "../context/AppContext";
 
-function LocestaLogo({ size = 42 }: { size?: number }) {
+function LokestaLogo({ size = 42 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 100 100" fill="none">
       <rect width="100" height="100" rx="22" fill="#0f1923"/>
@@ -103,7 +103,7 @@ export default function Register() {
         <div style={{ position: "absolute", bottom: "-60px", left: "-60px", width: "280px", height: "280px", borderRadius: "50%", border: "1px solid rgba(249,115,22,0.06)" }} />
         <div style={{ position: "relative", zIndex: 1, textAlign: "center", maxWidth: "360px" }}>
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "0.875rem", marginBottom: "2.5rem" }}>
-            <LocestaLogo size={80} />
+            <LokestaLogo size={80} />
             <div>
               <div style={{ fontSize: "2.4rem", fontWeight: 800, letterSpacing: "0.02em", fontFamily: "'DM Sans', sans-serif", lineHeight: 1 }}>
                 <span style={{ color: "#fff" }}>Loce</span><span style={{ color: "#f97316" }}>sta</span>
@@ -111,7 +111,7 @@ export default function Register() {
               <p style={{ color: "rgba(255,255,255,0.3)", fontSize: "0.6rem", letterSpacing: "0.15em", textTransform: "uppercase", marginTop: "4px" }}>— Find your place anywhere —</p>
             </div>
           </div>
-          <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.9rem", color: "#fff", lineHeight: 1.3, marginBottom: "1rem" }}>Join 2,400+ Tanzanians on Locesta</h2>
+          <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.9rem", color: "#fff", lineHeight: 1.3, marginBottom: "1rem" }}>Join 2,400+ Tanzanians on Lokesta</h2>
           <p style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.9rem", lineHeight: 1.7, marginBottom: "2rem" }}>Jiunge bila malipo. Tafuta au weka chumba kwa urahisi.</p>
           <div style={{ display: "flex", flexDirection: "column", gap: "0.875rem", textAlign: "left" }}>
             {[
@@ -133,7 +133,7 @@ export default function Register() {
       <div className="login-right-panel" style={{ width: "440px", background: cardBg, display: "flex", alignItems: "center", justifyContent: "center", padding: "3rem 2.5rem" }}>
         <div style={{ width: "100%", maxWidth: "340px" }}>
           <div style={{ display: "none", flexDirection: "column", alignItems: "center", gap: "0.75rem", marginBottom: "2rem" }} className="mobile-logo">
-            <LocestaLogo size={52} />
+            <LokestaLogo size={52} />
             <div style={{ textAlign: "center" }}>
               <div style={{ fontSize: "1.6rem", fontWeight: 800, fontFamily: "'DM Sans', sans-serif" }}>
                 <span style={{ color: textPrimary }}>Loce</span><span style={{ color: "#f97316" }}>sta</span>
@@ -142,7 +142,7 @@ export default function Register() {
           </div>
 
           <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.8rem", color: textPrimary, marginBottom: "0.35rem" }}>Create account 🎉</h1>
-          <p style={{ color: textSecondary, fontSize: "0.875rem", marginBottom: "1.75rem" }}>Join Locesta and find your perfect space</p>
+          <p style={{ color: textSecondary, fontSize: "0.875rem", marginBottom: "1.75rem" }}>Join Lokesta and find your perfect space</p>
 
           {error && (
             <div style={{ background: "#fef2f2", border: "1px solid #fca5a5", color: "#dc2626", padding: "0.875rem 1rem", borderRadius: "10px", fontSize: "0.875rem", marginBottom: "1.25rem", display: "flex", gap: "8px", alignItems: "flex-start" }}>
