@@ -3,25 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { GoogleLogin } from "@react-oauth/google";
 import { registerUser, saveAuth } from "../services/authService";
 import { useApp } from "../context/AppContext";
-
-function LokestalLogo({ size = 60 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 120 120" fill="none">
-      <circle cx="60" cy="60" r="58" fill="#0f1923" stroke="#f97316" strokeWidth="2"/>
-      <path d="M60 18 C44 18 30 32 30 48 C30 66 60 102 60 102 C60 102 90 66 90 48 C90 32 76 18 60 18Z" fill="url(#pinReg)"/>
-      <path d="M44 50 L60 37 L76 50 L76 66 L66 66 L66 56 L54 56 L54 66 L44 66 Z" fill="white"/>
-      <rect x="54" y="56" width="12" height="10" rx="2" fill="#f97316" opacity="0.8"/>
-      <rect x="56" y="42" width="8" height="6" rx="1" fill="white" opacity="0.6"/>
-      <defs>
-        <linearGradient id="pinReg" x1="30" y1="18" x2="90" y2="102" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stopColor="#fbbf24"/>
-          <stop offset="50%" stopColor="#f97316"/>
-          <stop offset="100%" stopColor="#ea580c"/>
-        </linearGradient>
-      </defs>
-    </svg>
-  );
-}
+import { LocestaLogoBig, LocestaLogo } from "../components/LocestaLogo";
 
 export default function Register() {
   const navigate = useNavigate();
@@ -49,26 +31,40 @@ export default function Register() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.name || !form.email || !form.password) { setError("Jaza fields zote"); return; }
-    if (form.password.length < 6) { setError("Password lazima iwe na herufi 6+"); return; }
+    if (!form.name.trim()) { setError("Weka jina lako kamili"); return; }
+    if (!form.email.trim()) { setError("Weka email yako"); return; }
+    if (!form.password) { setError("Weka password"); return; }
+    if (form.password.length < 6) { setError("Password iwe na herufi 6+"); return; }
     setLoading(true);
+    setError("");
     try {
-      const data = await registerUser(form);
+      const data = await registerUser({ name: form.name.trim(), email: form.email.trim().toLowerCase(), password: form.password });
       saveAuth(data);
       navigate("/");
     } catch (err: unknown) {
-      const msg = (err as any)?.response?.data?.error;
-      setError(msg || "Registration imeshindwa — jaribu tena");
+      const e = err as any;
+      const status = e?.response?.status;
+      const msg = e?.response?.data?.error || e?.response?.data?.message || e?.message || "";
+      if (status === 409 || msg.toLowerCase().includes("exist") || msg.toLowerCase().includes("already")) {
+        setError("Email hii imeshatumika — ingia badala yake");
+      } else if (status === 400) {
+        setError(msg || "Taarifa si sahihi — angalia tena");
+      } else if (e?.code === "ERR_NETWORK") {
+        setError("Hakuna mtandao — angalia internet yako");
+      } else if (status >= 500) {
+        setError("Tatizo la seva — jaribu tena baadaye");
+      } else {
+        setError(msg || "Registration imeshindwa — jaribu tena");
+      }
     } finally {
       setLoading(false);
     }
   };
 
-  const handleGoogle = async (credentialResponse: { credential?: string }) => {
+  const handleGoogle = async (cr: { credential?: string }) => {
     try {
-      const base64 = credentialResponse.credential?.split(".")[1] || "";
-      const decoded = JSON.parse(atob(base64));
-      saveAuth({ message: "Umeingia!", token: credentialResponse.credential || "", user: { id: 999, name: decoded.name || "Google User", email: decoded.email || "" } });
+      const decoded = JSON.parse(atob(cr.credential?.split(".")[1] || "{}"));
+      saveAuth({ message: "OK", token: cr.credential || "", user: { id: 999, name: decoded.name || "Google User", email: decoded.email || "" } });
       navigate("/");
     } catch { setError("Google login imeshindwa"); }
   };
@@ -78,20 +74,14 @@ export default function Register() {
   return (
     <div style={{ minHeight: "100vh", background: "linear-gradient(145deg, #0f1923 0%, #1a2a3a 100%)", display: "flex", alignItems: "stretch" }}>
 
-      {/* Left panel */}
+      {/* LEFT */}
       <div className="login-left-panel" style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "3rem 2rem", position: "relative", overflow: "hidden" }}>
         <div style={{ position: "absolute", top: "-80px", right: "-80px", width: "350px", height: "350px", borderRadius: "50%", border: "1px solid rgba(249,115,22,0.08)" }} />
         <div style={{ position: "absolute", bottom: "-60px", left: "-60px", width: "280px", height: "280px", borderRadius: "50%", border: "1px solid rgba(249,115,22,0.06)" }} />
 
-        <div style={{ position: "relative", zIndex: 1, textAlign: "center", maxWidth: "360px" }}>
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "1rem", marginBottom: "2.5rem" }}>
-            <LokestalLogo size={80} />
-            <div>
-              <div style={{ fontSize: "2.4rem", fontWeight: 700, letterSpacing: "0.08em", fontFamily: "'DM Sans', sans-serif" }}>
-                <span style={{ color: "#fff" }}>Loce</span><span style={{ color: "#f97316" }}>sta</span>
-              </div>
-              <p style={{ color: "rgba(255,255,255,0.35)", fontSize: "0.65rem", letterSpacing: "0.15em", textTransform: "uppercase" }}>Find your place anywhere</p>
-            </div>
+        <div style={{ position: "relative", zIndex: 1, textAlign: "center", maxWidth: "380px" }}>
+          <div style={{ marginBottom: "2.5rem" }}>
+            <LocestaLogoBig size={90} />
           </div>
 
           <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.9rem", color: "#fff", lineHeight: 1.3, marginBottom: "1rem" }}>
@@ -117,26 +107,29 @@ export default function Register() {
         </div>
       </div>
 
-      {/* Right panel */}
+      {/* RIGHT */}
       <div className="login-right-panel" style={{ width: "440px", background: cardBg, display: "flex", alignItems: "center", justifyContent: "center", padding: "3rem 2.5rem" }}>
         <div style={{ width: "100%", maxWidth: "340px" }}>
 
           {/* Mobile logo */}
-          <div style={{ display: "none", flexDirection: "column", alignItems: "center", gap: "0.75rem", marginBottom: "2rem" }} className="mobile-logo">
-            <LokestalLogo size={52} />
-            <div style={{ textAlign: "center" }}>
-              <div style={{ fontSize: "1.6rem", fontWeight: 700, fontFamily: "'DM Sans', sans-serif" }}>
-                <span style={{ color: textPrimary }}>Loce</span><span style={{ color: "#f97316" }}>sta</span>
-              </div>
-            </div>
+          <div style={{ display: "none", justifyContent: "center", marginBottom: "2rem" }} className="mobile-logo">
+            <LocestaLogo size={36} showText={true} showTagline={false} />
           </div>
 
           <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.8rem", color: textPrimary, marginBottom: "0.35rem" }}>Create account 🎉</h1>
           <p style={{ color: textSecondary, fontSize: "0.875rem", marginBottom: "1.75rem" }}>Join Locesta and find your perfect space</p>
 
           {error && (
-            <div style={{ background: "#fef2f2", border: "1px solid #fca5a5", color: "#dc2626", padding: "0.875rem 1rem", borderRadius: "10px", fontSize: "0.875rem", marginBottom: "1.25rem" }}>
-              ⚠️ {error}
+            <div style={{ background: "#fef2f2", border: "1px solid #fca5a5", color: "#dc2626", padding: "0.875rem 1rem", borderRadius: "10px", fontSize: "0.875rem", marginBottom: "1.25rem", display: "flex", gap: "8px", alignItems: "flex-start" }}>
+              <span style={{ flexShrink: 0 }}>⚠️</span>
+              <div>
+                <span>{error}</span>
+                {error.includes("imeshatumika") && (
+                  <div style={{ marginTop: "4px" }}>
+                    <Link to="/login" style={{ color: "#dc2626", fontWeight: 700, textDecoration: "underline", fontSize: "0.82rem" }}>→ Ingia sasa</Link>
+                  </div>
+                )}
+              </div>
             </div>
           )}
 
@@ -170,7 +163,7 @@ export default function Register() {
                 </button>
               </div>
               {form.password.length > 0 && (
-                <div style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "2px" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                   <div style={{ display: "flex", gap: "4px", flex: 1 }}>
                     {[1, 2, 3].map((level) => (
                       <div key={level} style={{ flex: 1, height: "4px", borderRadius: "2px", background: strength >= level ? strengthColors[strength] : borderColor, transition: "background 0.3s" }} />
@@ -181,8 +174,13 @@ export default function Register() {
               )}
             </div>
 
-            <button type="submit" disabled={loading} style={{ background: loading ? "#888" : "linear-gradient(135deg, #f97316, #fbbf24)", color: "#fff", border: "none", borderRadius: "12px", padding: "1rem", fontSize: "1rem", fontWeight: 700, cursor: loading ? "not-allowed" : "pointer", fontFamily: "'DM Sans', sans-serif", opacity: loading ? 0.7 : 1 }}>
-              {loading ? "Inaunda akaunti..." : "Create Account →"}
+            <button type="submit" disabled={loading} style={{ background: loading ? "#888" : "linear-gradient(135deg, #f97316, #fbbf24)", color: "#fff", border: "none", borderRadius: "12px", padding: "1rem", fontSize: "1rem", fontWeight: 700, cursor: loading ? "not-allowed" : "pointer", fontFamily: "'DM Sans', sans-serif", opacity: loading ? 0.75 : 1 }}>
+              {loading ? (
+                <span style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}>
+                  <span style={{ width: "18px", height: "18px", borderRadius: "50%", border: "2px solid rgba(255,255,255,0.3)", borderTopColor: "#fff", animation: "spin 0.8s linear infinite", display: "inline-block" }} />
+                  Inaunda akaunti...
+                </span>
+              ) : "Create Account →"}
             </button>
           </form>
 
