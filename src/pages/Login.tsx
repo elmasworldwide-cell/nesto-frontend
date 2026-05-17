@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { GoogleLogin } from "@react-oauth/google";
 import { loginUser, saveAuth } from "../services/authService";
 import { useApp } from "../context/AppContext";
-import { LokestaLogoBig, LokestaLogo } from "../components/LokestaLogo";
+import { LokestaLogoBig, LokestaLogo } from "../components/LocestaLogo";
 
 export default function Login() {
   const navigate = useNavigate();

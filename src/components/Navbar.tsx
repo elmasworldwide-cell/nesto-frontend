@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useApp } from "../context/AppContext";
 import { isLoggedIn, getCurrentUser, logout } from "../services/authService";
-import { LokestaLogo } from "./LokestaLogo";
+import { LokestaLogo } from "./LocestaLogo";
 
 const ADMIN_EMAIL = "elmasworldwide@gmail.com";
 
