@@ -296,7 +296,7 @@ export default function Home() {
       <div style={{ background: "#080f16", padding: "1.75rem 1.25rem", borderTop: "1px solid rgba(249,115,22,.1)" }}>
         <div style={{ maxWidth: "1100px", margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "1rem" }} className="footer-row">
           <span style={{ fontFamily: "'DM Sans',sans-serif", fontWeight: 800, fontSize: "1.1rem" }}>
-            <span style={{ color: "#fff" }}>Loce</span><span style={{ color: "#f97316" }}>sta</span>
+            <span style={{ color: "#fff" }}>LOKESTA</span>
           </span>
           <p style={{ color: "rgba(255,255,255,.3)", fontSize: ".75rem" }}>{tx.footerCopy}</p>
           <div style={{ display: "flex", gap: "1.5rem" }} className="footer-links">
