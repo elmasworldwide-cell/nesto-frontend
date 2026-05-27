@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { GoogleLogin } from "@react-oauth/google";
 import { registerUser, saveAuth } from "../services/authService";
 import { useApp } from "../context/AppContext";
-import { LokestaLogoBig, LokestaLogo } from "../components/LOKESTALogo";
+import { LOKESTALogoBig, LOKESTALogo } from "../components/LOKESTALogo";
 
 export default function Register() {
   const navigate = useNavigate();
@@ -38,7 +38,11 @@ export default function Register() {
     setLoading(true);
     setError("");
     try {
-      const data = await registerUser({ name: form.name.trim(), email: form.email.trim().toLowerCase(), password: form.password });
+      const data = await registerUser({
+        name: form.name.trim(),
+        email: form.email.trim().toLowerCase(),
+        password: form.password,
+      });
       saveAuth(data);
       navigate("/");
     } catch (err: unknown) {
@@ -63,16 +67,25 @@ export default function Register() {
 
   const handleGoogle = async (cr: { credential?: string }) => {
     try {
-      const decoded = JSON.parse(atob(cr.credential?.split(".")[1] || "{}"));
-      saveAuth({ message: "OK", token: cr.credential || "", user: { id: 999, name: decoded.name || "Google User", email: decoded.email || "" } });
+      const decoded = JSON.parse(atob((cr.credential?.split(".")[1]) || "{}"));
+      saveAuth({
+        message: "OK",
+        token: cr.credential || "",
+        user: { id: 999, name: decoded.name || "Google User", email: decoded.email || "" },
+      });
       navigate("/");
     } catch { setError("Google login imeshindwa"); }
   };
 
-  const inp: React.CSSProperties = { padding: "0.875rem 1rem", borderRadius: "10px", border: `1.5px solid ${borderColor}`, fontSize: "0.9rem", color: textPrimary, background: inputBg, fontFamily: "'DM Sans', sans-serif", outline: "none", width: "100%" };
+  const inp: React.CSSProperties = {
+    padding: "0.875rem 1rem", borderRadius: "10px",
+    border: `1.5px solid ${borderColor}`, fontSize: "0.9rem",
+    color: textPrimary, background: inputBg,
+    fontFamily: "'DM Sans',sans-serif", outline: "none", width: "100%",
+  };
 
   return (
-    <div style={{ minHeight: "100vh", background: "linear-gradient(145deg, #0f1923 0%, #1a2a3a 100%)", display: "flex", alignItems: "stretch" }}>
+    <div style={{ minHeight: "100vh", background: "linear-gradient(145deg,#0d1b2a 0%,#1a2a3a 100%)", display: "flex", alignItems: "stretch" }}>
 
       {/* LEFT */}
       <div className="login-left-panel" style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "3rem 2rem", position: "relative", overflow: "hidden" }}>
@@ -81,16 +94,14 @@ export default function Register() {
 
         <div style={{ position: "relative", zIndex: 1, textAlign: "center", maxWidth: "380px" }}>
           <div style={{ marginBottom: "2.5rem" }}>
-            <LokestaLogoBig size={90} />
+            <LOKESTALogoBig size={100} />
           </div>
-
-          <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.9rem", color: "#fff", lineHeight: 1.3, marginBottom: "1rem" }}>
-            Join 2,400+ Tanzanians on Lokesta
+          <h2 style={{ fontFamily: "'Playfair Display',serif", fontSize: "1.9rem", color: "#fff", lineHeight: 1.3, marginBottom: "1rem" }}>
+            Join 2,400+ Tanzanians on LOKESTA
           </h2>
           <p style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.9rem", lineHeight: 1.7, marginBottom: "2rem" }}>
             Jiunge bila malipo. Tafuta au weka chumba kwa urahisi.
           </p>
-
           <div style={{ display: "flex", flexDirection: "column", gap: "0.875rem", textAlign: "left" }}>
             {[
               { icon: "🔍", text: "Browse hundreds of verified rooms" },
@@ -113,11 +124,15 @@ export default function Register() {
 
           {/* Mobile logo */}
           <div style={{ display: "none", justifyContent: "center", marginBottom: "2rem" }} className="mobile-logo">
-            <LokestaLogo size={36} showText={true} showTagline={false} />
+            <LOKESTALogo size={36} showText={true} />
           </div>
 
-          <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.8rem", color: textPrimary, marginBottom: "0.35rem" }}>Create account 🎉</h1>
-          <p style={{ color: textSecondary, fontSize: "0.875rem", marginBottom: "1.75rem" }}>Join Lokesta and find your perfect space</p>
+          <h1 style={{ fontFamily: "'Playfair Display',serif", fontSize: "1.8rem", color: textPrimary, marginBottom: "0.35rem" }}>
+            Create account 🎉
+          </h1>
+          <p style={{ color: textSecondary, fontSize: "0.875rem", marginBottom: "1.75rem" }}>
+            Join LOKESTA and find your perfect space
+          </p>
 
           {error && (
             <div style={{ background: "#fef2f2", border: "1px solid #fca5a5", color: "#dc2626", padding: "0.875rem 1rem", borderRadius: "10px", fontSize: "0.875rem", marginBottom: "1.25rem", display: "flex", gap: "8px", alignItems: "flex-start" }}>
@@ -174,7 +189,7 @@ export default function Register() {
               )}
             </div>
 
-            <button type="submit" disabled={loading} style={{ background: loading ? "#888" : "linear-gradient(135deg, #f97316, #fbbf24)", color: "#fff", border: "none", borderRadius: "12px", padding: "1rem", fontSize: "1rem", fontWeight: 700, cursor: loading ? "not-allowed" : "pointer", fontFamily: "'DM Sans', sans-serif", opacity: loading ? 0.75 : 1 }}>
+            <button type="submit" disabled={loading} style={{ background: loading ? "#888" : "linear-gradient(135deg,#f97316,#fbbf24)", color: "#fff", border: "none", borderRadius: "12px", padding: "1rem", fontSize: "1rem", fontWeight: 700, cursor: loading ? "not-allowed" : "pointer", fontFamily: "'DM Sans',sans-serif", opacity: loading ? 0.75 : 1 }}>
               {loading ? (
                 <span style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}>
                   <span style={{ width: "18px", height: "18px", borderRadius: "50%", border: "2px solid rgba(255,255,255,0.3)", borderTopColor: "#fff", animation: "spin 0.8s linear infinite", display: "inline-block" }} />
